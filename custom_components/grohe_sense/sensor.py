@@ -44,7 +44,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
                                  SensorTypes.LPM_ESTIMATED_STOP_TIME, SensorTypes.LPM_START_TIME,
                                  SensorTypes.LPM_PRESSURE_DROP, SensorTypes.LPM_LEAKAGE, SensorTypes.LPM_STATUS,
                                  SensorTypes.LPM_MAX_FLOW_RATE]:
-                    if device.stripped_sw_version >= (3, 6):
+                    if device.stripped_sw_version >= (2, 5):
                         entities.append(GroheSenseGuardLastPressureEntity(DOMAIN, coordinator, device, sensors))
                 else:
                     entities.append(GroheSensorEntity(DOMAIN, coordinator, device, sensors))
