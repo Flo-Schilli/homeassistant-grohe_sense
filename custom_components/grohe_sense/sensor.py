@@ -28,12 +28,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     devices: List[GroheDevice] = hass.data[DOMAIN]['devices']
 
     for device in devices:
+        coordinator: GroheSenseUpdateCoordinator | GroheBlueUpdateCoordinator | None = None
+
         if device.type == GroheTypes.GROHE_BLUE_PROFESSIONAL or device.type == GroheTypes.GROHE_BLUE_HOME:
             coordinator = GroheBlueUpdateCoordinator(hass, device, ondus_api)
-        else:
+        elif device.type == GroheTypes.GROHE_SENSE_GUARD or device.type == GroheTypes.GROHE_SENSE:
             coordinator = GroheSenseUpdateCoordinator(hass, device, ondus_api)
 
-        if device.type in GROHE_ENTITY_CONFIG:
+        if device.type in GROHE_ENTITY_CONFIG and coordinator is not None:
             for sensors in GROHE_ENTITY_CONFIG.get(device.type):
                 _LOGGER.debug(f'Attaching sensor {sensors} to device {device}')
                 if sensors == SensorTypes.WATER_CONSUMPTION:
