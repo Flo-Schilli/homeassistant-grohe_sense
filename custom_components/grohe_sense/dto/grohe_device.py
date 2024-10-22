@@ -84,6 +84,23 @@ class GroheDevice:
                         f'Found in location {location.id} and room {room.id} the following appliance: {appliance.id} '
                         f'from type {appliance.type} with name {appliance.name}'
                     )
-                    devices.append(GroheDevice(location.id, room.id, appliance))
+
+                    try:
+                        device: GroheDevice = GroheDevice(location.id, room.id, appliance)
+                        if not device.is_valid_device_type():
+                            app_details = await ondus_api.get_appliance_details_type_insensitive(
+                                location.id, room.id, appliance.id)
+
+                            _LOGGER.warning(f'Could not parse the following appliance as a GroheDevice. Please file '
+                                            f'a new issue with your Grohe Devices and this information.'
+                                            f'Appliance: {appliance}, Appliance details: {app_details}')
+                        else:
+                            devices.append(device)
+                    except ValueError as e:
+                        _LOGGER.warning(f'Could not parse the following appliance as a GroheDevice: {appliance}')
 
         return devices
+
+    def is_valid_device_type(self) -> bool:
+        is_valid = any(self.appliance.type == item.value for item in GroheTypes)
+        return is_valid
