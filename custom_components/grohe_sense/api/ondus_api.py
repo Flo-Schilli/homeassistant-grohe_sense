@@ -359,7 +359,15 @@ class OndusApi:
         if data is None or not is_iteratable(data):
             return []
         else:
-            return [Appliance.from_dict(appliance) for appliance in data]
+            appliances: List[Appliance] = []
+            for appliance in data:
+                try:
+                    new_appliance = Appliance.from_dict(appliance)
+                    appliances.append(new_appliance)
+                except Exception as e:
+                    _LOGGER.warning(f'Failed to get appliance information: {e}')
+
+            return appliances
 
     async def get_appliance_info(self, location_id: string, room_id: string, appliance_id: string) -> Appliance:
         """
@@ -378,6 +386,24 @@ class OndusApi:
         url = f'{self.__api_url}/locations/{location_id}/rooms/{room_id}/appliances/{appliance_id}'
         data = await self.__get(url)
         return Appliance.from_dict(data)
+
+
+    async def get_appliance_details_type_insensitive(self, location_id: string, room_id: string, appliance_id: string) -> any:
+        """
+        Get information about an appliance without parsing it to a struct.
+
+        :param location_id: ID of the location containing the appliance.
+        :type location_id: str
+        :param room_id: ID of the room containing the appliance.
+        :type room_id: str
+        :param appliance_id: ID of the appliance to get details for.
+        :type appliance_id: str
+        :return: The information of the appliance.
+        :rtype: Appliance
+        """
+        _LOGGER.debug('Get appliance details for appliance (type insensitive) %s', appliance_id)
+        url = f'{self.__api_url}/locations/{location_id}/rooms/{room_id}/appliances/{appliance_id}/details'
+        return await self.__get(url)
 
     async def get_appliance_details(self, location_id: string, room_id: string, appliance_id: string) -> Appliance:
         """
