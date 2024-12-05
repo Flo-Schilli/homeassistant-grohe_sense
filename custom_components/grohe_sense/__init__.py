@@ -9,7 +9,7 @@ from homeassistant.helpers import aiohttp_client
 from custom_components.grohe_sense.api.ondus_api import OndusApi
 from custom_components.grohe_sense.const import DOMAIN, CONF_USERNAME, CONF_PASSWORD, CONF_PLATFORM
 from custom_components.grohe_sense.dto.grohe_device import GroheDevice
-from custom_components.grohe_sense.enum.ondus_types import GroheTypes
+from custom_components.grohe_sense.enum.ondus_types import GroheTypes, OndusGroupByTypes
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -40,9 +40,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         device = find_device_by_name(devices, call.data['device_name'])
 
         if device:
+            group_by = OndusGroupByTypes.DAY if device.type == GroheTypes.GROHE_SENSE else OndusGroupByTypes.HOUR
             appliance_data = await api.get_appliance_data(device.location_id, device.room_id, device.appliance_id,
                                                           datetime.now().astimezone() - timedelta(hours=1),
-                                                          None, None, False)
+                                                          None, group_by, False)
             return appliance_data.to_dict()
         else:
             return {}
