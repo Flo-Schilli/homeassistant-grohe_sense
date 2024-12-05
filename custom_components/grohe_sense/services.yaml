@@ -1,0 +1,3 @@
+getDashboard:
+  name: Get Dashboard Data
+  description: Exports data from the Grohe Dashboard endpoint
