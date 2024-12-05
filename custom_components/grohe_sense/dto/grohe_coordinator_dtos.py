@@ -3,7 +3,7 @@ from typing import Optional
 
 from dataclasses_json import dataclass_json, config
 
-
+from custom_components.grohe_sense.dto.ondus_dtos import DataLatest
 
 
 @dataclass_json
@@ -71,3 +71,4 @@ class CoordinatorDto:
     measurement: Optional[MeasurementSenseDto] = None
     withdrawal: Optional[float] = None
     last_pressure_measurement: Optional[LastPressureMeasurement] = None
+    latest_data: Optional[DataLatest] = None

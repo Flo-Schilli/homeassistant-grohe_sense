@@ -85,9 +85,22 @@ class AverageMeasurements:
 
 @dataclass_json
 @dataclass
+class LastWithdrawalDto:
+    starttime: str
+    stoptime: str
+    waterconsumption: float
+    maxflowrate: float
+
+
+@dataclass_json
+@dataclass
 class DataLatest:
     measurement: MeasurementDto
-    average_measurements: Optional[AverageMeasurements] = None
+    withdrawals: LastWithdrawalDto
+    average_monthly_consumption: Optional[float] = None
+    daily_cost: Optional[float] = None
+    average_daily_consumption: Optional[float] = None
+    daily_consumption: Optional[float] = None
 
 
 @dataclass_json
