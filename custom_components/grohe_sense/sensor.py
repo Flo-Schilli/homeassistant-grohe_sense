@@ -9,6 +9,7 @@ from .dto.grohe_device import GroheDevice
 from .entities.configuration.grohe_entity_configuration import GROHE_ENTITY_CONFIG, SensorTypes
 from .entities.grohe_blue_update_coordinator import GroheBlueUpdateCoordinator
 from .entities.grohe_sense_guard_last_pressure import GroheSenseGuardLastPressureEntity
+from .entities.grohe_sense_guard_latest_data import GroheSenseGuardLatestData
 from .entities.grohe_sensor import GroheSensorEntity
 from .entities.grohe_sense_guard import GroheSenseGuardWithdrawalsEntity
 from .entities.grohe_sense_notifications import GroheSenseNotificationEntity
@@ -24,7 +25,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     ondus_api: OndusApi = hass.data[DOMAIN]['session']
 
     entities: List[GroheSenseNotificationEntity | GroheSensorEntity | GroheSenseGuardWithdrawalsEntity |
-                   GroheSenseGuardLastPressureEntity] = []
+                   GroheSenseGuardLastPressureEntity | GroheSenseGuardLatestData] = []
     devices: List[GroheDevice] = hass.data[DOMAIN]['devices']
 
     for device in devices:
@@ -48,6 +49,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
                                  SensorTypes.LPM_MAX_FLOW_RATE]:
                     if device.stripped_sw_version >= (3, 6):
                         entities.append(GroheSenseGuardLastPressureEntity(DOMAIN, coordinator, device, sensors))
+                elif sensors in [SensorTypes.LATEST_WATER_CONSUMPTION, SensorTypes.LATEST_FLOW_RATE,
+                                SensorTypes.AVERAGE_MONTHLY_CONSUMPTION, SensorTypes.AVERAGE_DAILY_CONSUMPTION,
+                                   SensorTypes.DAILY_CONSUMPTION]:
+                    entities.append(GroheSenseGuardLatestData(DOMAIN, coordinator, device, sensors))
                 else:
                     entities.append(GroheSensorEntity(DOMAIN, coordinator, device, sensors))
         else:

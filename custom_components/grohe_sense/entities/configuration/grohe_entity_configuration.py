@@ -24,6 +24,12 @@ class SensorTypes(Enum):
     LPM_DURATION = 'lpm_duration'
     LPM_MAX_FLOW_RATE = 'lpm_max_flow_rate'
     LPM_ESTIMATED_STOP_TIME = 'lpm_estimated_stop_time'
+    # Data_Latest
+    LATEST_WATER_CONSUMPTION = 'last water consumption'
+    LATEST_FLOW_RATE = 'last max flow rate'
+    AVERAGE_MONTHLY_CONSUMPTION = 'average consumption monthly'
+    AVERAGE_DAILY_CONSUMPTION = 'average consumption daily'
+    DAILY_CONSUMPTION = 'consumption today'
     # Sensors for Grohe BLUE
     CLEANING_COUNT = 'cleaning_count'
     DATE_OF_CLEANING = 'date_of_cleaning'
@@ -74,6 +80,11 @@ GROHE_ENTITY_CONFIG: Dict[GroheTypes, List[SensorTypes]] = {
                                    SensorTypes.LPM_PRESSURE_DROP,
                                    SensorTypes.LPM_DURATION,
                                    SensorTypes.LPM_MAX_FLOW_RATE,
+                                   SensorTypes.LATEST_WATER_CONSUMPTION,
+                                   SensorTypes.LATEST_FLOW_RATE,
+                                   SensorTypes.AVERAGE_MONTHLY_CONSUMPTION,
+                                   SensorTypes.AVERAGE_DAILY_CONSUMPTION,
+                                   SensorTypes.DAILY_CONSUMPTION,
                                    ],
     GroheTypes.GROHE_BLUE_PROFESSIONAL: [SensorTypes.NOTIFICATION,
                                          SensorTypes.CLEANING_COUNT,
@@ -130,6 +141,13 @@ SENSOR_CONFIGURATION: Dict[SensorTypes, Sensor] = {
                                   lambda x: x * 3.6),
     SensorTypes.PRESSURE: Sensor(SensorDeviceClass.PRESSURE, UnitOfPressure.BAR, lambda x: x),
     SensorTypes.WATER_CONSUMPTION: Sensor(SensorDeviceClass.WATER, UnitOfVolume.LITERS, lambda x: x),
+    # From here on there are the data latest values
+    SensorTypes.LATEST_WATER_CONSUMPTION: Sensor(SensorDeviceClass.WATER, UnitOfVolume.LITERS, lambda x: x),
+    SensorTypes.LATEST_FLOW_RATE: Sensor(SensorDeviceClass.VOLUME_FLOW_RATE, UnitOfVolumeFlowRate.CUBIC_METERS_PER_HOUR,
+                                  lambda x: x * 3.6),
+    SensorTypes.AVERAGE_MONTHLY_CONSUMPTION: Sensor(SensorDeviceClass.WATER, UnitOfVolume.LITERS, lambda x: x),
+    SensorTypes.AVERAGE_DAILY_CONSUMPTION: Sensor(SensorDeviceClass.WATER, UnitOfVolume.LITERS, lambda x: x),
+    SensorTypes.DAILY_CONSUMPTION: Sensor(SensorDeviceClass.WATER, UnitOfVolume.LITERS, lambda x: x),
     # From here on there are the last pressure measurement information sensors
     SensorTypes.LPM_STATUS: Sensor(None, None, lambda x: x),
     SensorTypes.LPM_START_TIME: Sensor(SensorDeviceClass.TIMESTAMP, None, lambda x: x),

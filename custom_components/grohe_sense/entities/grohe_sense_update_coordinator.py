@@ -11,7 +11,7 @@ from custom_components.grohe_sense.api.ondus_api import OndusApi
 from custom_components.grohe_sense.dto.grohe_coordinator_dtos import MeasurementSenseDto, CoordinatorDto, \
     LastPressureMeasurement
 from custom_components.grohe_sense.dto.grohe_device import GroheDevice
-from custom_components.grohe_sense.dto.ondus_dtos import Notification
+from custom_components.grohe_sense.dto.ondus_dtos import Notification, DataLatest
 from custom_components.grohe_sense.enum.ondus_types import GroheTypes, OndusGroupByTypes
 
 _LOGGER = logging.getLogger(__name__)
@@ -33,6 +33,7 @@ class GroheSenseUpdateCoordinator(DataUpdateCoordinator):
         :return: The latest notification text. If no notifications are found, returns 'No notifications'.
         :rtype: str
         """
+        _LOGGER.debug('Get notification')
         notifications = await self._api.get_appliance_notifications(self._device.location_id, self._device.room_id,
                                                                     self._device.appliance_id)
         notifications.sort(key=lambda n: n.timestamp, reverse=True)
@@ -55,6 +56,7 @@ class GroheSenseUpdateCoordinator(DataUpdateCoordinator):
         """
         group_by = OndusGroupByTypes.DAY if self._device.type == GroheTypes.GROHE_SENSE else OndusGroupByTypes.HOUR
 
+        _LOGGER.debug('Get actual measurement')
         measurements_response = await self._api.get_appliance_data(self._device.location_id, self._device.room_id,
                                                                    self._device.appliance_id,
                                                                    self._last_update - timedelta(hours=1), None,
@@ -80,6 +82,7 @@ class GroheSenseUpdateCoordinator(DataUpdateCoordinator):
     async def _get_last_pressure_measurement(self) -> LastPressureMeasurement | None:
         _LOGGER.debug(f'Get last pressure measurement for appliance {self._device.appliance_id}')
 
+        _LOGGER.debug('Get last pressure measurement')
         appliance_details = await self._api.get_appliance_details(self._device.location_id, self._device.room_id,
                                                                   self._device.appliance_id)
 
@@ -108,6 +111,7 @@ class GroheSenseUpdateCoordinator(DataUpdateCoordinator):
                  (float). If no withdrawal data is available, the corresponding values will be None.
         :rtype: float | None
         """
+        _LOGGER.debug('Get latest withdrawal')
         measurements_response = await self._api.get_appliance_data(self._device.location_id, self._device.room_id,
                                                                    self._device.appliance_id,
                                                                    self._last_update, None, None, True)
@@ -125,6 +129,25 @@ class GroheSenseUpdateCoordinator(DataUpdateCoordinator):
 
         return withdrawal
 
+    async def _get_latest_data(self) -> DataLatest | None:
+        """
+        Fetches the latest data for a specified appliance. If the appliance has current data available,
+        it returns the latest data; otherwise, it returns None.
+
+        :return: The latest data of the appliance if available; otherwise, None
+        :rtype: DataLatest | None
+        """
+        _LOGGER.debug('Get latest data')
+        appliance_details = await self._api.get_appliance_details(self._device.location_id, self._device.room_id,
+                                                                  self._device.appliance_id)
+
+        if appliance_details is not None and appliance_details.data_latest is not None:
+            latest_data = appliance_details.data_latest
+        else:
+            latest_data = None
+
+        return latest_data
+
     async def _async_update_data(self) -> CoordinatorDto:
         try:
             _LOGGER.debug(f'Updating {self._device.type} (appliance = {self._device.appliance_id}) data')
@@ -133,8 +156,10 @@ class GroheSenseUpdateCoordinator(DataUpdateCoordinator):
             data.measurement = await self._get_actual_measurement()
             data.notification = await self._get_notification()
 
+
             if self._device.type == GroheTypes.GROHE_SENSE_GUARD:
                 data.last_pressure_measurement = await self._get_last_pressure_measurement()
+                data.latest_data = await self._get_latest_data()
 
             self._last_update = datetime.now().astimezone().replace(tzinfo=self._timezone)
             return data
