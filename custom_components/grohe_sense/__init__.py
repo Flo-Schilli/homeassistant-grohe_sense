@@ -30,6 +30,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         dashboard = await api.get_dashboard()
         return dashboard.to_dict()
 
-    hass.services.async_register(DOMAIN, 'getDashboard', handle_export, schema=None, supports_response=SupportsResponse.ONLY)
+    hass.services.async_register(DOMAIN, 'get_dashboard', handle_export, schema=None, supports_response=SupportsResponse.ONLY)
 
     return True
