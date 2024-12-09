@@ -13,6 +13,7 @@ from lxml import html
 from custom_components.grohe_sense.api.ondus_notifications import ondus_notifications
 from custom_components.grohe_sense.dto.ondus_dtos import Locations, Location, Room, Appliance, Notification, Status, \
     ApplianceCommand, MeasurementData, OndusToken, PressureMeasurementStart, ProfileNotifications
+from custom_components.grohe_sense.dto.grohe_coordinator_dtos import LastPressureMeasurement
 from custom_components.grohe_sense.enum.ondus_types import OndusGroupByTypes, OndusCommands, GroheTypes
 
 _LOGGER = logging.getLogger(__name__)
@@ -297,7 +298,7 @@ class OndusApi:
         else:
             return False
 
-    async def get_dashboard(self) -> Locations:
+    async def get_dashboard(self, export_raw_data: Optional[bool] = False) -> Locations | None:
         """
         Get the dashboard information.
         These dashboard information include most of the data which can also be queried by the appliance itself
@@ -308,7 +309,10 @@ class OndusApi:
         _LOGGER.debug('Get dashboard information')
         url = f'{self.__api_url}/dashboard'
         data = await self.__get(url)
-        return Locations.from_dict(data)
+        if export_raw_data:
+            return data
+        else:
+            return Locations.from_dict(data)
 
     async def get_locations(self) -> List[Location]:
         """
@@ -423,6 +427,10 @@ class OndusApi:
         data = await self.__get(url)
         return Appliance.from_dict(data)
 
+    async def get_appliance_status_type_insensitive(self, location_id: string, room_id: string, appliance_id: string) -> any:
+        url = f'{self.__api_url}/locations/{location_id}/rooms/{room_id}/appliances/{appliance_id}/status'
+        data = await self.__get(url)
+
     async def get_appliance_status(self, location_id: string, room_id: string, appliance_id: string) -> List[Status]:
         """
         Get the status of an appliance.
@@ -437,9 +445,11 @@ class OndusApi:
         :rtype: List[Status]
         """
         _LOGGER.debug('Get appliance status for appliance %s', appliance_id)
-        url = f'{self.__api_url}/locations/{location_id}/rooms/{room_id}/appliances/{appliance_id}/status'
-        data = await self.__get(url)
-        return [Status.from_dict(state) for state in data]
+        data = await self.get_appliance_status_type_insensitive(location_id, room_id, appliance_id)
+        if data is None or not is_iteratable(data):
+            return []
+        else:
+            return [Status.from_dict(state) for state in data]
 
     async def get_appliance_command(self, location_id: string, room_id: string, appliance_id: string) \
             -> ApplianceCommand | None:
@@ -463,6 +473,22 @@ class OndusApi:
         else:
             return None
 
+    async def get_appliance_notifications_type_insensitive(self, location_id: string, room_id: string,
+                                                           appliance_id: string, limit: Optional[int] = None) -> any:
+
+        url = f'{self.__api_url}/locations/{location_id}/rooms/{room_id}/appliances/{appliance_id}/notifications'
+
+        params = dict()
+
+        if limit is not None:
+            params.update({'pageSize': limit})
+
+        if params:
+            url += '?' + urllib.parse.urlencode(params)
+
+        data = await self.__get(url)
+        return data
+
     async def get_appliance_notifications(self, location_id: string, room_id: string, appliance_id: string) \
             -> List[Notification]:
         """
@@ -478,8 +504,7 @@ class OndusApi:
         :rtype: List[Notification]
         """
         _LOGGER.debug('Get appliance notifications for appliance %s', appliance_id)
-        url = f'{self.__api_url}/locations/{location_id}/rooms/{room_id}/appliances/{appliance_id}/notifications'
-        data = await self.__get(url)
+        data = await self.get_appliance_notifications_type_insensitive(location_id, room_id, appliance_id)
 
         if data is not None:
             notifications = [Notification.from_dict(notification) for notification in data]
@@ -502,9 +527,10 @@ class OndusApi:
     async def get_appliance_data(self, location_id: string, room_id: string, appliance_id: string,
                                  from_date: Optional[datetime] = None, to_date: Optional[datetime] = None,
                                  group_by: Optional[OndusGroupByTypes] = None,
-                                 date_as_full_day: Optional[bool] = None) -> MeasurementData | None:
+                                 date_as_full_day: Optional[bool] = None, export_raw_data: Optional[bool] = False) -> MeasurementData | None:
         """
         Retrieves aggregated data for a specific appliance within a room.
+
 
         :param location_id: ID of the location containing the appliance.
         :type location_id: str
@@ -520,6 +546,8 @@ class OndusApi:
         :type group_by: OndusGroupByTypes
         :param date_as_full_day: 
         :type date_as_full_day: bool
+        :param export_raw_data:
+        :type export_raw_data: bool
         :return: The aggregated measurement data for the specified appliance.
         :rtype: MeasurementData
         """
@@ -546,7 +574,9 @@ class OndusApi:
             url += '?' + urllib.parse.urlencode(params)
 
         data = await self.__get(url)
-        if data is not None:
+        if export_raw_data:
+            return data
+        elif data is not None:
             return MeasurementData.from_dict(data)
         else:
             return None
@@ -606,6 +636,53 @@ class OndusApi:
         else:
             return None
 
+    async def get_appliance_pressure_measurement_type_insensitive(self, location_id: string, room_id: string,
+                                                                  appliance_id: string) -> any:
+        url = f'{self.__api_url}/locations/{location_id}/rooms/{room_id}/appliances/{appliance_id}/pressuremeasurement'
+        data = await self.__get(url)
+        return data
+
+    async def get_appliance_pressure_measurement(self, location_id: string, room_id: string, appliance_id: string) -> List[LastPressureMeasurement]:
+        """
+        Retrieves the latest pressure measurement data for a specific appliance. This
+        function fetches the data considering case insensitivity for appliance
+        details. If data is found, it converts the measurements from dictionary
+        format to instances of LastPressureMeasurement.
+
+        :param location_id: Identifier for the location where the appliance is installed.
+        :param room_id: Identifier for the room containing the appliance.
+        :param appliance_id: Unique identifier for the appliance.
+        :return: A list of LastPressureMeasurement instances containing the pressure
+                 measurements of the appliance. Returns an empty list if no data is found.
+        """
+        _LOGGER.debug('Get pressure measurement for appliance %s', appliance_id)
+        data = await self.get_appliance_pressure_measurement_type_insensitive(location_id, room_id, appliance_id)
+
+        if data is not None:
+            measurements: List[LastPressureMeasurement] = []
+            if len(data['items']) > 0:
+                for measure in data['items']:
+                    measurement = LastPressureMeasurement.from_dict(measure)
+
+                    curve = measure['pressure_curve']
+                    flow_rates = [flow['fr'] for flow in curve]
+                    flow_rates.sort(reverse=True)
+                    measurement.max_flow_rate = flow_rates[0] if len(flow_rates) > 0 else None
+                    measurements.append(measurement)
+
+            return measurements
+
+        else:
+            return []
+
+
+    async def get_profile_notifications_type_insensitive(self, page_size: int = 50) -> any:
+        url = f'{self.__api_url}/profile/notifications?pageSize={page_size}'
+        data = await self.__get(url)
+        return data
+
+
+
     async def get_profile_notifications(self, page_size: int = 50) -> ProfileNotifications | None:
         """
             Get profile notifications.
@@ -614,8 +691,7 @@ class OndusApi:
             :return: ProfileNotifications.
         """
         _LOGGER.debug('Get latest %d notifications', page_size)
-        url = f'{self.__api_url}/profile/notifications?pageSize={page_size}'
-        data = await self.__get(url)
+        data = await self.get_profile_notifications_type_insensitive(page_size)
 
         if data is not None:
             notifications = ProfileNotifications.from_dict(data)
