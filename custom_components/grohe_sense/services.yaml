@@ -1,0 +1,12 @@
+get_dashboard:
+  name: Get Dashboard Data
+  description: Exports data from the Grohe Dashboard endpoint
+
+get_appliance_data:
+  name: Get Appliance data
+  description: Get the actual appliance data for the provided device name
+  fields:
+    device_name:
+      name: Device name
+      description: The name of the device for which the data should be queried
+      required: true
