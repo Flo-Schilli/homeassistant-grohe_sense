@@ -96,7 +96,7 @@ class LastWithdrawalDto:
 @dataclass
 class DataLatest:
     measurement: MeasurementDto
-    withdrawals: LastWithdrawalDto
+    withdrawals: Optional[LastWithdrawalDto] = None
     average_monthly_consumption: Optional[float] = None
     daily_cost: Optional[float] = None
     average_daily_consumption: Optional[float] = None
