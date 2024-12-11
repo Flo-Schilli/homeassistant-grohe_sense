@@ -9,7 +9,6 @@ from homeassistant.core import HomeAssistant, ServiceCall, ServiceResponse, Supp
 from homeassistant.helpers import aiohttp_client
 from custom_components.grohe_sense.api.ondus_api import OndusApi
 from custom_components.grohe_sense.const import DOMAIN, CONF_USERNAME, CONF_PASSWORD, CONF_PLATFORM
-from custom_components.grohe_sense.dto.config_dtos import NotificationsConfig
 from custom_components.grohe_sense.dto.grohe_device import GroheDevice
 from custom_components.grohe_sense.entities.config_loader import ConfigLoader
 from custom_components.grohe_sense.enum.ondus_types import GroheTypes, OndusGroupByTypes
@@ -35,7 +34,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     devices: List[GroheDevice] = await GroheDevice.get_devices(api)
 
     # Store devices and login information into hass object
-    hass.data[DOMAIN] = {'session': api, 'devices': devices}
+    hass.data[DOMAIN] = {'session': api, 'devices': devices, 'notifications': notifications, 'config': config}
 
     await hass.config_entries.async_forward_entry_setups(entry, CONF_PLATFORM)
 

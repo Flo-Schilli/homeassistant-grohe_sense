@@ -9,6 +9,7 @@ from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from ..coordinator.sense_coordinator import SenseCoordinator
+from ..get_ha_units import GetHaUnits
 from ...dto.grohe_device import GroheDevice
 from ...dto.config_dtos import SensorDto
 
@@ -31,7 +32,7 @@ class Sensor(CoordinatorEntity, SensorEntity):
             self._attr_device_class = SensorDeviceClass(self._sensor.device_class.lower())
 
         if self._sensor.unit is not None:
-            self._attr_native_unit_of_measurement = self._sensor.unit
+            self._attr_native_unit_of_measurement = GetHaUnits.get_ha_units(self._sensor.unit)
 
         if self._sensor.category is not None:
             self._attr_entity_category = EntityCategory(self._sensor.category.lower())

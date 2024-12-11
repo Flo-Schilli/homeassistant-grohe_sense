@@ -2,7 +2,7 @@ import os
 
 import yaml
 
-from custom_components.grohe_sense.dto.config_dtos import NotificationsConfig, Config
+from custom_components.grohe_sense.dto.config_dtos import NotificationsDto, ConfigDto
 
 
 class ConfigLoader:
@@ -12,12 +12,12 @@ class ConfigLoader:
     def __init__(self, path: str):
         self.path = path
 
-    def load_notifications(self) -> NotificationsConfig:
+    def load_notifications(self) -> NotificationsDto:
         with open(os.path.join(self.path, self.notification_name), 'r') as file:
             yaml_data = yaml.safe_load(file)
-            return NotificationsConfig.from_dict(yaml_data)
+            return NotificationsDto.from_dict(yaml_data)
 
-    def load_config(self) -> Config:
+    def load_config(self) -> ConfigDto:
         with open(os.path.join(self.path, self.config_name), 'r') as file:
             yaml_data = yaml.safe_load(file)
-            return Config.from_dict(yaml_data)
+            return ConfigDto.from_dict(yaml_data)
