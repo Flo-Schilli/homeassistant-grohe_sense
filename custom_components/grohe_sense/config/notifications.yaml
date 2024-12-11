@@ -1,0 +1,140 @@
+notifications:
+  - category: 0
+    type: 'Advertisement'
+    sub_category:
+      - id: 0
+        text: 'Unknown'
+  - category: 10
+    type: 'Information'
+    sub_category:
+      - id: 10
+        text: 'Installation successful'
+      - id: 60
+        text: 'Firmware update available'
+      - id: 100
+        text: 'System Information [undefined]'
+      - id: 410
+        text: 'Installation of sense guard successful'
+      - id: 460
+        text: 'Firmware update of sense guard available'
+      - id: 555
+        text: 'Blue: auto flush active'
+      - id: 556
+        text: 'Blue: auto flush inactive'
+      - id: 557
+        text: 'Cartridge empty'
+      - id: 559
+        text: 'Cleaning complete'
+      - id: 560
+        text: 'Firmware update for blue available'
+      - id: 561
+        text: 'Order fully shipped'
+      - id: 563
+        text: 'Order fully delivered'
+      - id: 566
+        text: 'Order partially shipped'
+      - id: 601
+        text: 'Nest away mode automatic control off'
+      - id: 602
+        text: 'Nest home mode automatic control off'
+      - id: 605
+        text: 'Connect with your insurer'
+      - id: 606
+        text: 'Device deactivated'
+  - category: 20
+    type: 'Warning'
+    sub_category:
+      - id: 11
+        text: 'Battery is at critical level'
+      - id: 12
+        text: 'Battery is empty and must be changed'
+      - id: 20
+        text: 'Temperature levels have dropped below the minimum configured limit'
+      - id: 21
+        text: 'Temperature levels have exceeded the maximum configured limit'
+      - id: 30
+        text: 'Humidity levels have dropped below the minimum configured limit'
+      - id: 31
+        text: 'Humidity levels have exceeded the maximum configured limit'
+      - id: 40
+        text: 'Frost warning!'
+      - id: 80
+        text: 'Sense lost WiFi'
+      - id: 320
+        text: 'Unusual water consumption detected - water has been SHUT OFF'
+      - id: 321
+        text: 'Unusual water consumption detected - water still ON'
+      - id: 330
+        text: 'Pressure drop detected during check of household water pipes'
+      - id: 332
+        text: 'Water system check not possible'
+      - id: 380
+        text: 'Sense guard lost WiFi'
+      - id: 381
+        text: 'Water pressure drops detected'
+      - id: 385
+        text: 'Water pressure drops detected. Severity has increased'
+      - id: 420
+        text: 'Multiple water pressure drops detected - water supply switched off'
+      - id: 421
+        text: 'Multiple water pressure drops detected'
+      - id: 550
+        text: 'Blue filter low'
+      - id: 551
+        text: 'Blue CO2 low'
+      - id: 552
+        text: 'Blue empty filter'
+      - id: 553
+        text: 'Blue empty CO2'
+      - id: 558
+        text: 'Cleaning'
+      - id: 564
+        text: 'Filter stock empty'
+      - id: 565
+        text: 'CO2 stock empty'
+      - id: 580
+        text: 'Blue no connection'
+      - id: 603
+        text: 'Sense Guard did not respond – valve open'
+      - id: 604
+        text: 'Sense Guard did not respond – valve closed'
+  - category: 30
+    type: 'Alarm'
+    sub_category:
+      - id: 0
+        text: 'Flooding detected - water has been SHUT OFF'
+      - id: 50
+        text: 'Sensor error 50'
+      - id: 90
+        text: 'System error 90'
+      - id: 100
+        text: 'System error 100'
+      - id: 101
+        text: 'RTC error'
+      - id: 102
+        text: 'Acceleration sensor'
+      - id: 103
+        text: 'System out of service'
+      - id: 104
+        text: 'System memory error'
+      - id: 105
+        text: 'System relative temperature'
+      - id: 106
+        text: 'System water detection error'
+      - id: 107
+        text: 'System button error'
+      - id: 310
+        text: 'Extremely high flow rate - water supply switched off'
+      - id: 390
+        text: 'System error 390'
+      - id: 400
+        text: 'Maximum volume reached — water supply switched off'
+      - id: 430
+        text: 'Water detected by GROHE Sense - water supply switched off'
+      - id: 431
+        text: 'Water detected by GROHE Sense'
+  - category: 40
+    type: 'WebURL'
+    sub_category:
+      - id: 1
+        text: 'Web URL'

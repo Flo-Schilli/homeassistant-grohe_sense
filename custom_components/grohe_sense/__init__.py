@@ -1,4 +1,5 @@
 import logging
+import os.path
 from datetime import datetime, timedelta
 from typing import List
 
@@ -8,7 +9,9 @@ from homeassistant.core import HomeAssistant, ServiceCall, ServiceResponse, Supp
 from homeassistant.helpers import aiohttp_client
 from custom_components.grohe_sense.api.ondus_api import OndusApi
 from custom_components.grohe_sense.const import DOMAIN, CONF_USERNAME, CONF_PASSWORD, CONF_PLATFORM
+from custom_components.grohe_sense.dto.config_dtos import NotificationsConfig
 from custom_components.grohe_sense.dto.grohe_device import GroheDevice
+from custom_components.grohe_sense.entities.config_loader import ConfigLoader
 from custom_components.grohe_sense.enum.ondus_types import GroheTypes, OndusGroupByTypes
 
 _LOGGER = logging.getLogger(__name__)
@@ -19,18 +22,25 @@ def find_device_by_name(devices: List[GroheDevice], name: str) -> GroheDevice:
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     _LOGGER.debug("Loading Grohe Sense")
 
-    session = aiohttp_client.async_get_clientsession(hass)
+    config_loader = ConfigLoader(os.path.join(os.path.dirname(__file__), 'config'))
 
-    api = OndusApi(session)
+    notifications = await hass.async_add_executor_job(config_loader.load_notifications)
+    config = await hass.async_add_executor_job(config_loader.load_config)
+
+    # Login to Grohe backend
+    api = OndusApi(aiohttp_client.async_get_clientsession(hass))
     await api.login(entry.data[CONF_USERNAME], entry.data[CONF_PASSWORD])
 
+    # Get all devices available
     devices: List[GroheDevice] = await GroheDevice.get_devices(api)
 
+    # Store devices and login information into hass object
     hass.data[DOMAIN] = {'session': api, 'devices': devices}
 
     await hass.config_entries.async_forward_entry_setups(entry, CONF_PLATFORM)
 
 
+    ####### SERVICES ###################################################################################################
     async def handle_dashboard_export(call: ServiceCall) -> ServiceResponse:
         _LOGGER.debug('Export data for params: %s', call.data)
         return await api.get_dashboard(True)
@@ -47,9 +57,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             else:
                 group_by = OndusGroupByTypes(group_by_str)
 
-            return await api.get_appliance_data(device.location_id, device.room_id, device.appliance_id,
-                                                datetime.now().astimezone() - timedelta(hours=1),
-                                                None, group_by, False, True)
+            return await api.get_appliance_data_raw(device.location_id, device.room_id, device.appliance_id,
+                                                    datetime.now().astimezone() - timedelta(hours=1),
+                                                    None, group_by, False)
         else:
             return {}
 
@@ -58,7 +68,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         device = find_device_by_name(devices, call.data['device_name'])
 
         if device:
-            return await api.get_appliance_details_type_insensitive(device.location_id, device.room_id, device.appliance_id)
+            return await api.get_appliance_details_raw(device.location_id, device.room_id, device.appliance_id)
 
         else:
             return {}
@@ -68,7 +78,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         device = find_device_by_name(devices, call.data['device_name'])
 
         if device:
-            data = await api.get_appliance_status_type_insensitive(device.location_id, device.room_id, device.appliance_id)
+            data = await api.get_appliance_status_raw(device.location_id, device.room_id, device.appliance_id)
             if data is None:
                 return {}
             else:
@@ -82,7 +92,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         device = find_device_by_name(devices, call.data['device_name'])
 
         if device:
-            data = await api.get_appliance_notifications_type_insensitive(device.location_id, device.room_id, device.appliance_id)
+            data = await api.get_appliance_notifications_raw(device.location_id, device.room_id, device.appliance_id)
 
             if data is None:
                 return {}
@@ -101,7 +111,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         device = find_device_by_name(devices, call.data['device_name'])
 
         if device:
-            data = await api.get_appliance_pressure_measurement_type_insensitive(device.location_id, device.room_id, device.appliance_id)
+            data = await api.get_appliance_pressure_measurement_raw(device.location_id, device.room_id, device.appliance_id)
 
             if data is None:
                 return {}
@@ -121,7 +131,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         if limit is None:
             limit = 50
 
-        data = await api.get_profile_notifications_type_insensitive(limit)
+        data = await api.get_profile_notifications_raw(limit)
 
         if data is None:
             return {}

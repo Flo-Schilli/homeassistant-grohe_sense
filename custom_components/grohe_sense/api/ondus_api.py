@@ -392,7 +392,7 @@ class OndusApi:
         return Appliance.from_dict(data)
 
 
-    async def get_appliance_details_type_insensitive(self, location_id: string, room_id: string, appliance_id: string) -> any:
+    async def get_appliance_details_raw(self, location_id: string, room_id: string, appliance_id: string) -> any:
         """
         Get information about an appliance without parsing it to a struct.
 
@@ -427,9 +427,9 @@ class OndusApi:
         data = await self.__get(url)
         return Appliance.from_dict(data)
 
-    async def get_appliance_status_type_insensitive(self, location_id: string, room_id: string, appliance_id: string) -> any:
+    async def get_appliance_status_raw(self, location_id: string, room_id: string, appliance_id: string) -> any:
         url = f'{self.__api_url}/locations/{location_id}/rooms/{room_id}/appliances/{appliance_id}/status'
-        data = await self.__get(url)
+        return await self.__get(url)
 
     async def get_appliance_status(self, location_id: string, room_id: string, appliance_id: string) -> List[Status]:
         """
@@ -445,7 +445,7 @@ class OndusApi:
         :rtype: List[Status]
         """
         _LOGGER.debug('Get appliance status for appliance %s', appliance_id)
-        data = await self.get_appliance_status_type_insensitive(location_id, room_id, appliance_id)
+        data = await self.get_appliance_status_raw(location_id, room_id, appliance_id)
         if data is None or not is_iteratable(data):
             return []
         else:
@@ -473,8 +473,8 @@ class OndusApi:
         else:
             return None
 
-    async def get_appliance_notifications_type_insensitive(self, location_id: string, room_id: string,
-                                                           appliance_id: string, limit: Optional[int] = None) -> any:
+    async def get_appliance_notifications_raw(self, location_id: string, room_id: string,
+                                              appliance_id: string, limit: Optional[int] = None) -> any:
 
         url = f'{self.__api_url}/locations/{location_id}/rooms/{room_id}/appliances/{appliance_id}/notifications'
 
@@ -504,7 +504,7 @@ class OndusApi:
         :rtype: List[Notification]
         """
         _LOGGER.debug('Get appliance notifications for appliance %s', appliance_id)
-        data = await self.get_appliance_notifications_type_insensitive(location_id, room_id, appliance_id)
+        data = await self.get_appliance_notifications_raw(location_id, room_id, appliance_id)
 
         if data is not None:
             notifications = [Notification.from_dict(notification) for notification in data]
@@ -524,10 +524,37 @@ class OndusApi:
 
         return notifications
 
+    async def get_appliance_data_raw(self, location_id: string, room_id: string, appliance_id: string,
+                                 from_date: Optional[datetime] = None, to_date: Optional[datetime] = None,
+                                 group_by: Optional[OndusGroupByTypes] = None,
+                                 date_as_full_day: Optional[bool] = None) -> any:
+
+        url = f'{self.__api_url}/locations/{location_id}/rooms/{room_id}/appliances/{appliance_id}/data/aggregated'
+        params = dict()
+
+        if from_date is not None:
+            if date_as_full_day:
+                params.update({'from': from_date.date()})
+            else:
+                params.update({'from': from_date.strftime('%Y-%m-%dT%H:%M:%S%z')})
+        if to_date is not None:
+            if date_as_full_day:
+                params.update({'to': to_date.date()})
+            else:
+                params.update({'to': to_date.strftime('%Y-%m-%dT%H:%M:%S%z')})
+        if group_by is not None:
+            params.update({'groupBy': group_by.value})
+
+        if params:
+            url += '?' + urllib.parse.urlencode(params)
+
+        return await self.__get(url)
+
+
     async def get_appliance_data(self, location_id: string, room_id: string, appliance_id: string,
                                  from_date: Optional[datetime] = None, to_date: Optional[datetime] = None,
                                  group_by: Optional[OndusGroupByTypes] = None,
-                                 date_as_full_day: Optional[bool] = None, export_raw_data: Optional[bool] = False) -> MeasurementData | None:
+                                 date_as_full_day: Optional[bool] = None) -> MeasurementData | None:
         """
         Retrieves aggregated data for a specific appliance within a room.
 
@@ -554,29 +581,10 @@ class OndusApi:
         _LOGGER.debug('Get appliance data for appliance %s with (from: %s, to: %s, group_by: %s',
                       appliance_id, from_date, to_date, group_by)
 
-        url = f'{self.__api_url}/locations/{location_id}/rooms/{room_id}/appliances/{appliance_id}/data/aggregated'
-        params = dict()
+        data = await self.get_appliance_data_raw(location_id, room_id, appliance_id, from_date, to_date, group_by,
+                                                 date_as_full_day)
 
-        if from_date is not None:
-            if date_as_full_day:
-                params.update({'from': from_date.date()})
-            else:
-                params.update({'from': from_date.strftime('%Y-%m-%dT%H:%M:%S%z')})
-        if to_date is not None:
-            if date_as_full_day:
-                params.update({'to': to_date.date()})
-            else:
-                params.update({'to': to_date.strftime('%Y-%m-%dT%H:%M:%S%z')})
-        if group_by is not None:
-            params.update({'groupBy': group_by.value})
-
-        if params:
-            url += '?' + urllib.parse.urlencode(params)
-
-        data = await self.__get(url)
-        if export_raw_data:
-            return data
-        elif data is not None:
+        if data is not None:
             return MeasurementData.from_dict(data)
         else:
             return None
@@ -636,8 +644,8 @@ class OndusApi:
         else:
             return None
 
-    async def get_appliance_pressure_measurement_type_insensitive(self, location_id: string, room_id: string,
-                                                                  appliance_id: string) -> any:
+    async def get_appliance_pressure_measurement_raw(self, location_id: string, room_id: string,
+                                                     appliance_id: string) -> any:
         url = f'{self.__api_url}/locations/{location_id}/rooms/{room_id}/appliances/{appliance_id}/pressuremeasurement'
         data = await self.__get(url)
         return data
@@ -656,7 +664,7 @@ class OndusApi:
                  measurements of the appliance. Returns an empty list if no data is found.
         """
         _LOGGER.debug('Get pressure measurement for appliance %s', appliance_id)
-        data = await self.get_appliance_pressure_measurement_type_insensitive(location_id, room_id, appliance_id)
+        data = await self.get_appliance_pressure_measurement_raw(location_id, room_id, appliance_id)
 
         if data is not None:
             measurements: List[LastPressureMeasurement] = []
@@ -676,7 +684,7 @@ class OndusApi:
             return []
 
 
-    async def get_profile_notifications_type_insensitive(self, page_size: int = 50) -> any:
+    async def get_profile_notifications_raw(self, page_size: int = 50) -> any:
         url = f'{self.__api_url}/profile/notifications?pageSize={page_size}'
         data = await self.__get(url)
         return data
@@ -691,7 +699,7 @@ class OndusApi:
             :return: ProfileNotifications.
         """
         _LOGGER.debug('Get latest %d notifications', page_size)
-        data = await self.get_profile_notifications_type_insensitive(page_size)
+        data = await self.get_profile_notifications_raw(page_size)
 
         if data is not None:
             notifications = ProfileNotifications.from_dict(data)

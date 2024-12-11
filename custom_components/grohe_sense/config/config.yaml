@@ -1,0 +1,18 @@
+devices:
+  device:
+    type: GroheSense
+    sensors:
+      - name: 'Temperature'
+        keypath: 'details.data_latest.measurement.temperature'
+        device_class: 'Temperature'
+        unit: 'Celsius'
+      - name: 'Humidity'
+        keypath: 'details.data_latest.measurement.humidity'
+        device_class: 'Humidity'
+        unit: 'Percentage'
+      - name: 'Battery'
+        keypath: 'details.data_latest.measurement.battery'
+        device_class: 'Battery'
+        unit: 'Percentage'
+      - name: 'Latest notification'
+        keypath: 'details.notification[0]'
