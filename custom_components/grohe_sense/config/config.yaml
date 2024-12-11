@@ -14,5 +14,6 @@ devices:
         keypath: 'details.data_latest.measurement.battery'
         device_class: 'Battery'
         unit: 'Percentage'
+        category: 'Diagnostic'
       - name: 'Latest notification'
         keypath: 'details.notification[0]'

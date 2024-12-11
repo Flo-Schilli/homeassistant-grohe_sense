@@ -5,49 +5,50 @@ from dataclasses_json import dataclass_json
 #### NOTIFICATION.YAML #################################################################################################
 @dataclass_json
 @dataclass
-class SubCategory:
+class SubCategoryDto:
     id: int
     text: str
 
 
 @dataclass_json
 @dataclass
-class Notification:
+class NotificationDto:
     category: int
     type: str
-    sub_category: List[SubCategory]
+    sub_category: List[SubCategoryDto]
 
 
 @dataclass_json
 @dataclass
-class NotificationsConfig:
-    notifications: List[Notification]
+class NotificationsDto:
+    notifications: List[NotificationDto]
 
 
 #### CONFIG.YAML #######################################################################################################
 @dataclass_json
 @dataclass
-class Sensor:
+class SensorDto:
     name: str
     keypath: str
     device_class: Optional[str] = None  # Optional since `Notification` doesn't have it
+    category: Optional[str] = None
     unit: Optional[str] = None  # Optional since `Notification` doesn't have it
 
 
 @dataclass_json
 @dataclass
-class Device:
+class DeviceDto:
     type: str
-    sensors: List[Sensor]
+    sensors: List[SensorDto]
 
 
 @dataclass_json
 @dataclass
-class Devices:
-    device: Device
+class DevicesDto:
+    device: DeviceDto
 
 
 @dataclass_json
 @dataclass
-class Config:
-    devices: Devices
+class ConfigDto:
+    devices: DevicesDto
