@@ -6,10 +6,10 @@ from homeassistant.components.sensor import SensorEntity, SensorDeviceClass
 from homeassistant.const import EntityCategory
 from homeassistant.core import callback
 from homeassistant.helpers.device_registry import DeviceInfo
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.helpers.update_coordinator import CoordinatorEntity, DataUpdateCoordinator
 
 from ..coordinator.sense_coordinator import SenseCoordinator
-from ..get_ha_units import GetHaUnits
+from ..helper import Helper
 from ...dto.grohe_device import GroheDevice
 from ...dto.config_dtos import SensorDto
 
@@ -17,7 +17,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class Sensor(CoordinatorEntity, SensorEntity):
-    def __init__(self, domain: str, coordinator: SenseCoordinator, device: GroheDevice, sensor: SensorDto,
+    def __init__(self, domain: str, coordinator: DataUpdateCoordinator, device: GroheDevice, sensor: SensorDto,
                  initial_value: Dict[str, any] = None):
         super().__init__(coordinator)
         self._coordinator = coordinator
@@ -35,7 +35,7 @@ class Sensor(CoordinatorEntity, SensorEntity):
             self._attr_device_class = SensorDeviceClass(self._sensor.device_class.lower())
 
         if self._sensor.unit is not None:
-            self._attr_native_unit_of_measurement = GetHaUnits.get_ha_units(self._sensor.unit)
+            self._attr_native_unit_of_measurement = Helper.get_ha_units(self._sensor.unit)
 
         if self._sensor.category is not None:
             self._attr_entity_category = EntityCategory(self._sensor.category.lower())
@@ -50,7 +50,7 @@ class Sensor(CoordinatorEntity, SensorEntity):
 
     @property
     def unique_id(self):
-        return f'{self._device.appliance_id}_{self._sensor.name}'
+        return f'{self._device.appliance_id}_{self._sensor.name.lower().replace(" ", "_")}'
 
     @property
     def native_value(self):

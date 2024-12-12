@@ -18,6 +18,13 @@ devices:
         - name: 'Latest notification'
           keypath: 'details.notification[0]'
     - type: GroheSenseGuard
+      valves:
+        - name: 'Valve'
+          keypath: 'command.valve_open'
+          device_class: 'Water'
+          features:
+            - open
+            - close
       sensors:
         - name: 'Temperature'
           keypath: 'details.data_latest.measurement.temperature_guard'

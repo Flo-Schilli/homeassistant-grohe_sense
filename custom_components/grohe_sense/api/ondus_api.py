@@ -473,6 +473,24 @@ class OndusApi:
         else:
             return None
 
+    async def get_appliance_command_raw(self, location_id: string, room_id: string, appliance_id: string) -> Dict[str, any]:
+        """
+        Get possible commands for an appliance.
+
+        :param location_id: ID of the location containing the appliance.
+        :type location_id: str
+        :param room_id: ID of the room containing the appliance.
+        :type room_id: str
+        :param appliance_id: ID of the appliance to get details for.
+        :type appliance_id: str
+        :return: The command for the specified appliance.
+        :rtype: ApplianceCommand
+        """
+        _LOGGER.debug('Get appliance command for appliance %s', appliance_id)
+        url = f'{self.__api_url}/locations/{location_id}/rooms/{room_id}/appliances/{appliance_id}/command'
+        return await self.__get(url)
+
+
     async def get_appliance_notifications_raw(self, location_id: string, room_id: string,
                                               appliance_id: string, limit: Optional[int] = None) -> any:
 
@@ -588,6 +606,11 @@ class OndusApi:
             return MeasurementData.from_dict(data)
         else:
             return None
+
+    async def set_appliance_command_raw(self, location_id: string, room_id: string, appliance_id: string, device_type: GroheTypes, data: Dict[str, any]) -> Dict[str, any]:
+        url = f'{self.__api_url}/locations/{location_id}/rooms/{room_id}/appliances/{appliance_id}/command'
+        data['type'] = device_type.value
+        return await self.__post(url, data)
 
     async def set_appliance_command(self, location_id: string, room_id: string, appliance_id: string,
                                     command: OndusCommands, value: bool) -> ApplianceCommand:

@@ -1,43 +1,42 @@
 import logging
 from typing import List
 
-from custom_components.grohe_sense.dto.config_dtos import ConfigDto
-from custom_components.grohe_sense.dto.grohe_device import GroheDevice
-from custom_components.grohe_sense.entities.coordinator.blue_home_coordinator import BlueHomeCoordinator
-from custom_components.grohe_sense.entities.coordinator.blue_prof_coordinator import BlueProfCoordinator
-from custom_components.grohe_sense.entities.coordinator.guard_coordinator import GuardCoordinator
-from custom_components.grohe_sense.entities.coordinator.sense_coordinator import SenseCoordinator
-from custom_components.grohe_sense.entities.entity.sensor import Sensor
-from custom_components.grohe_sense.entities.interface.coordinator_interface import CoordinatorInterface
+from homeassistant.components.valve import ValveEntityFeature
+from homeassistant.const import UnitOfTemperature, PERCENTAGE, UnitOfVolume, UnitOfVolumeFlowRate, UnitOfPressure, \
+    UnitOfTime
 
 _LOGGER = logging.getLogger(__name__)
 
-
 class Helper:
-    def __init__(self, config: ConfigDto, domain: str):
-        self._config = config
-        self._domain = domain
+    @staticmethod
+    def get_ha_units(unit: str) -> str:
+        if unit == 'Celsius':
+            return UnitOfTemperature.CELSIUS
+        elif unit == 'Percentage':
+            return PERCENTAGE
+        elif unit == 'Liters':
+            return UnitOfVolume.LITERS
+        elif unit == 'Cubic meters':
+            return UnitOfVolumeFlowRate.CUBIC_METERS_PER_HOUR
+        elif unit == 'Bar':
+            return UnitOfPressure.BAR
+        elif unit == 'Minutes':
+            return UnitOfTime.MINUTES
+        else:
+            return unit
 
+    @staticmethod
+    def get_valve_features(features: List[str]) -> int:
+        parsed_features: List[ValveEntityFeature] = []
+        for feature in features:
+            try:
+                parsed = ValveEntityFeature[feature.upper()]
+                parsed_features.append(parsed)
+            except ValueError:
+                _LOGGER.error(f'Provided feature {feature} is not a valid ValveEntityFeature from HA')
 
-    async def add_entities(self, coordinator: CoordinatorInterface, device: GroheDevice, async_add_entities):
+        bit_features = 0
+        for parsed_feature in parsed_features:
+            bit_features |= parsed_feature.value
 
-        config_name: str = ''
-        if isinstance(coordinator, SenseCoordinator):
-            config_name = 'GroheSense'
-        elif isinstance(coordinator, GuardCoordinator):
-            config_name = 'GroheSenseGuard'
-        elif isinstance(coordinator, BlueHomeCoordinator):
-            config_name = 'GroheBlueHome'
-        elif isinstance(coordinator, BlueProfCoordinator):
-            config_name = 'GroheBlueProf'
-
-        if config_name:
-            entities: List = []
-            initial_value = await coordinator.get_initial_value()
-            if self._config.get_device_config(config_name) is not None:
-                for sensor in self._config.get_device_config(config_name).sensors:
-                    _LOGGER.debug(f'Adding sensor {sensor.name} for device {device.name}')
-                    entities.append(Sensor(self._domain, coordinator, device, sensor, initial_value))
-            if entities:
-                async_add_entities(entities, update_before_add=True)
-
+        return bit_features

@@ -10,11 +10,12 @@ from custom_components.grohe_sense.api.ondus_api import OndusApi
 from custom_components.grohe_sense.dto.grohe_device import GroheDevice
 from custom_components.grohe_sense.dto.ondus_dtos import Notification
 from custom_components.grohe_sense.entities.interface.coordinator_interface import CoordinatorInterface
+from custom_components.grohe_sense.entities.interface.coordinator_valve_interface import CoordinatorValveInterface
 
 _LOGGER = logging.getLogger(__name__)
 
 
-class GuardCoordinator(DataUpdateCoordinator, CoordinatorInterface):
+class GuardCoordinator(DataUpdateCoordinator, CoordinatorInterface, CoordinatorValveInterface):
     def __init__(self, hass: HomeAssistant, domain: str, device: GroheDevice, api: OndusApi) -> None:
         super().__init__(hass, _LOGGER, name='Grohe Sense', update_interval=timedelta(seconds=300), always_update=True)
         self._api = api
@@ -40,6 +41,23 @@ class GuardCoordinator(DataUpdateCoordinator, CoordinatorInterface):
         data = {'details': api_data, 'status': status}
 
         return data
+
+    async def get_valve_value(self) -> Dict[str, any]:
+        api_data = await self._api.get_appliance_command_raw(
+            self._device.location_id,
+            self._device.room_id,
+            self._device.appliance_id)
+
+        return api_data
+
+    async def set_valve(self, data_to_set: Dict[str, any]) -> Dict[str, any]:
+        api_data = await self._api.set_appliance_command_raw(
+            self._device.location_id,
+            self._device.room_id,
+            self._device.appliance_id,
+            self._device.type, data_to_set)
+
+        return api_data
 
     async def _async_update_data(self) -> dict:
         try:

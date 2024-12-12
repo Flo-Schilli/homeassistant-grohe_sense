@@ -42,16 +42,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     for device in devices:
         if device.type == GroheTypes.GROHE_SENSE:
             sense_coordinator = SenseCoordinator(hass, DOMAIN, device, api)
-            coordinators[device.name] = sense_coordinator
+            coordinators[device.appliance_id] = sense_coordinator
         elif device.type == GroheTypes.GROHE_SENSE_GUARD:
             guard_coordinator = GuardCoordinator(hass, DOMAIN, device, api)
-            coordinators[device.name] = guard_coordinator
+            coordinators[device.appliance_id] = guard_coordinator
         elif device.type == GroheTypes.GROHE_BLUE_HOME:
             blue_home_coordinator = BlueHomeCoordinator(hass, DOMAIN, device, api)
-            coordinators[device.name] = blue_home_coordinator
+            coordinators[device.appliance_id] = blue_home_coordinator
         elif device.type == GroheTypes.GROHE_BLUE_PROFESSIONAL:
             blue_prof_coordinator = BlueProfCoordinator(hass, DOMAIN, device, api)
-            coordinators[device.name] = blue_prof_coordinator
+            coordinators[device.appliance_id] = blue_prof_coordinator
 
     # Store devices and login information into hass object
     hass.data[DOMAIN] = {'session': api, 'devices': devices, 'coordinator': coordinators, 'notifications': notifications, 'config': config}

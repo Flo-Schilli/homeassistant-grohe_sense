@@ -30,17 +30,25 @@ class NotificationsDto:
 class SensorDto:
     name: str
     keypath: str
-    device_class: Optional[str] = None  # Optional since `Notification` doesn't have it
+    device_class: Optional[str] = None
     category: Optional[str] = None
-    unit: Optional[str] = None  # Optional since `Notification` doesn't have it
+    unit: Optional[str] = None
     enabled: Optional[bool] = True
 
+@dataclass_json
+@dataclass
+class ValveDto:
+    name: str
+    keypath: str
+    device_class: Optional[str] = None
+    features: Optional[List[str]] = None
 
 @dataclass_json
 @dataclass
 class DeviceDto:
     type: str
     sensors: List[SensorDto]
+    valves: Optional[List[ValveDto]] = None
 
 
 @dataclass_json
