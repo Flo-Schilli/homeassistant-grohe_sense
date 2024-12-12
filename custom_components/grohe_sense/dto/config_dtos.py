@@ -33,6 +33,7 @@ class SensorDto:
     device_class: Optional[str] = None  # Optional since `Notification` doesn't have it
     category: Optional[str] = None
     unit: Optional[str] = None  # Optional since `Notification` doesn't have it
+    enabled: Optional[bool] = True
 
 
 @dataclass_json

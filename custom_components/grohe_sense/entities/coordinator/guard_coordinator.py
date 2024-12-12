@@ -14,7 +14,7 @@ from custom_components.grohe_sense.entities.interface.coordinator_interface impo
 _LOGGER = logging.getLogger(__name__)
 
 
-class SenseCoordinator(DataUpdateCoordinator, CoordinatorInterface):
+class GuardCoordinator(DataUpdateCoordinator, CoordinatorInterface):
     def __init__(self, hass: HomeAssistant, domain: str, device: GroheDevice, api: OndusApi) -> None:
         super().__init__(hass, _LOGGER, name='Grohe Sense', update_interval=timedelta(seconds=300), always_update=True)
         self._api = api
@@ -30,7 +30,15 @@ class SenseCoordinator(DataUpdateCoordinator, CoordinatorInterface):
             self._device.room_id,
             self._device.appliance_id)
 
-        data = {'details': api_data}
+        try:
+            status = { val['type']: val['value'] for val in api_data['status'] }
+        except AttributeError as e:
+            _LOGGER.debug(f'Status could not be mapped: {e}')
+            status = None
+
+
+        data = {'details': api_data, 'status': status}
+
         return data
 
     async def _async_update_data(self) -> dict:
@@ -42,7 +50,7 @@ class SenseCoordinator(DataUpdateCoordinator, CoordinatorInterface):
             return data
 
         except Exception as e:
-            _LOGGER.error("Error updating Grohe Sense data: %s", str(e))
+            _LOGGER.error("Error updating Grohe Sense Guard data: %s", str(e))
 
     async def get_initial_value(self) -> Dict[str, any]:
         return await self._get_data()

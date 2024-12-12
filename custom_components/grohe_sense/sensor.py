@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 import logging
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -18,6 +18,7 @@ from .entities.grohe_sense_guard import GroheSenseGuardWithdrawalsEntity
 from .entities.grohe_sense_notifications import GroheSenseNotificationEntity
 from .entities.grohe_sense_update_coordinator import GroheSenseUpdateCoordinator
 from .entities.helper import Helper
+from .entities.interface.coordinator_interface import CoordinatorInterface
 from .enum.ondus_types import GroheTypes
 
 _LOGGER = logging.getLogger(__name__)
@@ -26,19 +27,18 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities):
     _LOGGER.debug(f'Adding sensor entities from config entry {entry}')
 
-    ondus_api: OndusApi = hass.data[DOMAIN]['session']
-
     entities: List[GroheSenseNotificationEntity | GroheSensorEntity | GroheSenseGuardWithdrawalsEntity |
                    GroheSenseGuardLastPressureEntity | GroheSenseGuardLatestData] = []
     devices: List[GroheDevice] = hass.data[DOMAIN]['devices']
     config: ConfigDto = hass.data[DOMAIN]['config']
+    coordinators: Dict[str, CoordinatorInterface] = hass.data[DOMAIN]['coordinator']
     helper: Helper = Helper(config, DOMAIN)
 
     for device in devices:
-        if device.type == GroheTypes.GROHE_SENSE:
-            sense_coordinator = SenseCoordinator(hass, DOMAIN, device, ondus_api)
-            await sense_coordinator.async_refresh()
-            helper.add_entities(sense_coordinator, device, async_add_entities)
+        coordinator = coordinators.get(device.name, None)
+        if coordinator is not None:
+            await helper.add_entities(coordinator, device, async_add_entities)
+
 
     #     coordinator: GroheSenseUpdateCoordinator | GroheBlueUpdateCoordinator | None = None
     #

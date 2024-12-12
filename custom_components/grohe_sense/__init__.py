@@ -1,7 +1,7 @@
 import logging
 import os.path
 from datetime import datetime, timedelta
-from typing import List
+from typing import List, Dict
 
 import voluptuous
 from homeassistant.config_entries import ConfigEntry
@@ -11,6 +11,11 @@ from custom_components.grohe_sense.api.ondus_api import OndusApi
 from custom_components.grohe_sense.const import DOMAIN, CONF_USERNAME, CONF_PASSWORD, CONF_PLATFORM
 from custom_components.grohe_sense.dto.grohe_device import GroheDevice
 from custom_components.grohe_sense.entities.config_loader import ConfigLoader
+from custom_components.grohe_sense.entities.coordinator.blue_home_coordinator import BlueHomeCoordinator
+from custom_components.grohe_sense.entities.coordinator.blue_prof_coordinator import BlueProfCoordinator
+from custom_components.grohe_sense.entities.coordinator.guard_coordinator import GuardCoordinator
+from custom_components.grohe_sense.entities.coordinator.sense_coordinator import SenseCoordinator
+from custom_components.grohe_sense.entities.interface.coordinator_interface import CoordinatorInterface
 from custom_components.grohe_sense.enum.ondus_types import GroheTypes, OndusGroupByTypes
 
 _LOGGER = logging.getLogger(__name__)
@@ -33,8 +38,23 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Get all devices available
     devices: List[GroheDevice] = await GroheDevice.get_devices(api)
 
+    coordinators: Dict[str, CoordinatorInterface] = {}
+    for device in devices:
+        if device.type == GroheTypes.GROHE_SENSE:
+            sense_coordinator = SenseCoordinator(hass, DOMAIN, device, api)
+            coordinators[device.name] = sense_coordinator
+        elif device.type == GroheTypes.GROHE_SENSE_GUARD:
+            guard_coordinator = GuardCoordinator(hass, DOMAIN, device, api)
+            coordinators[device.name] = guard_coordinator
+        elif device.type == GroheTypes.GROHE_BLUE_HOME:
+            blue_home_coordinator = BlueHomeCoordinator(hass, DOMAIN, device, api)
+            coordinators[device.name] = blue_home_coordinator
+        elif device.type == GroheTypes.GROHE_BLUE_PROFESSIONAL:
+            blue_prof_coordinator = BlueProfCoordinator(hass, DOMAIN, device, api)
+            coordinators[device.name] = blue_prof_coordinator
+
     # Store devices and login information into hass object
-    hass.data[DOMAIN] = {'session': api, 'devices': devices, 'notifications': notifications, 'config': config}
+    hass.data[DOMAIN] = {'session': api, 'devices': devices, 'coordinator': coordinators, 'notifications': notifications, 'config': config}
 
     await hass.config_entries.async_forward_entry_setups(entry, CONF_PLATFORM)
 
