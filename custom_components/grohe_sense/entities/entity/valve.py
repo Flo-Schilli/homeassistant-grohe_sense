@@ -79,7 +79,7 @@ class Valve(ValveEntity):
     async def async_update(self):
         if isinstance(self._coordinator, CoordinatorValveInterface):
             data = await self._coordinator.get_valve_value()
-            self._is_closed = self._get_value(data)
+            self._is_closed = not self._get_value(data)
 
     async def _set_state(self, state):
         if isinstance(self._coordinator, CoordinatorValveInterface) and self._valve.keypath is not None:
