@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 from typing import Dict
 
 from benedict import benedict
@@ -79,5 +80,9 @@ class Sensor(CoordinatorEntity, SensorEntity):
             value = self._get_value(self._coordinator.data)
             _LOGGER.debug(
                 f'Device: {self._device.name} ({self._device.appliance_id}) with sensor name: "{self._sensor.name}" has the following value on keypath "{self._sensor.keypath}": {value}')
+
+            if self._sensor.device_class is not None and self._sensor.device_class == 'Timestamp' and value is not None:
+                value = datetime.fromisoformat(value)
+
             self._value = value
             self.async_write_ha_state()
