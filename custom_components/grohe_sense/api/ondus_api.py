@@ -10,11 +10,9 @@ import jwt
 from aiohttp import ClientSession
 from lxml import html
 
-from custom_components.grohe_sense.api.ondus_notifications import ondus_notifications
-from custom_components.grohe_sense.dto.ondus_dtos import Locations, Location, Room, Appliance, Notification, Status, \
-    ApplianceCommand, MeasurementData, OndusToken, PressureMeasurementStart, ProfileNotifications
-from custom_components.grohe_sense.dto.grohe_coordinator_dtos import LastPressureMeasurement
-from custom_components.grohe_sense.enum.ondus_types import OndusGroupByTypes, OndusCommands, GroheTypes
+from custom_components.grohe_sense.dto.ondus_dtos import Locations, Location, Room, Appliance, \
+    ApplianceCommand, OndusToken, PressureMeasurementStart
+from custom_components.grohe_sense.enum.ondus_types import OndusGroupByTypes, GroheTypes
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -409,69 +407,10 @@ class OndusApi:
         url = f'{self.__api_url}/locations/{location_id}/rooms/{room_id}/appliances/{appliance_id}/details'
         return await self.__get(url)
 
-    async def get_appliance_details(self, location_id: string, room_id: string, appliance_id: string) -> Appliance:
-        """
-        Get details of an appliance by location, room, and appliance IDs.
-
-        :param location_id: ID of the location containing the appliance.
-        :type location_id: str
-        :param room_id: ID of the room containing the appliance.
-        :type room_id: str
-        :param appliance_id: ID of the appliance to get details for.
-        :type appliance_id: str
-        :return: Appliance object containing the details.
-        :rtype: Appliance
-        """
-        _LOGGER.debug('Get appliance details for appliance %s', appliance_id)
-        url = f'{self.__api_url}/locations/{location_id}/rooms/{room_id}/appliances/{appliance_id}/details'
-        data = await self.__get(url)
-        return Appliance.from_dict(data)
 
     async def get_appliance_status_raw(self, location_id: string, room_id: string, appliance_id: string) -> any:
         url = f'{self.__api_url}/locations/{location_id}/rooms/{room_id}/appliances/{appliance_id}/status'
         return await self.__get(url)
-
-    async def get_appliance_status(self, location_id: string, room_id: string, appliance_id: string) -> List[Status]:
-        """
-        Get the status of an appliance.
-
-        :param location_id: ID of the location containing the appliance.
-        :type location_id: str
-        :param room_id: ID of the room containing the appliance.
-        :type room_id: str
-        :param appliance_id: ID of the appliance to get details for.
-        :type appliance_id: str
-        :return: A list of Status objects representing the current status of the appliance.
-        :rtype: List[Status]
-        """
-        _LOGGER.debug('Get appliance status for appliance %s', appliance_id)
-        data = await self.get_appliance_status_raw(location_id, room_id, appliance_id)
-        if data is None or not is_iteratable(data):
-            return []
-        else:
-            return [Status.from_dict(state) for state in data]
-
-    async def get_appliance_command(self, location_id: string, room_id: string, appliance_id: string) \
-            -> ApplianceCommand | None:
-        """
-        Get possible commands for an appliance.
-
-        :param location_id: ID of the location containing the appliance.
-        :type location_id: str
-        :param room_id: ID of the room containing the appliance.
-        :type room_id: str
-        :param appliance_id: ID of the appliance to get details for.
-        :type appliance_id: str
-        :return: The command for the specified appliance.
-        :rtype: ApplianceCommand
-        """
-        _LOGGER.debug('Get appliance command for appliance %s', appliance_id)
-        url = f'{self.__api_url}/locations/{location_id}/rooms/{room_id}/appliances/{appliance_id}/command'
-        data = await self.__get(url)
-        if data is not None:
-            return ApplianceCommand.from_dict(data)
-        else:
-            return None
 
     async def get_appliance_command_raw(self, location_id: string, room_id: string, appliance_id: string) -> Dict[str, any]:
         """
@@ -507,41 +446,6 @@ class OndusApi:
         data = await self.__get(url)
         return data
 
-    async def get_appliance_notifications(self, location_id: string, room_id: string, appliance_id: string) \
-            -> List[Notification]:
-        """
-        Returns the notifications associated with a specific appliance in a given room at a specific location.
-
-        :param location_id: ID of the location containing the appliance.
-        :type location_id: str
-        :param room_id: ID of the room containing the appliance.
-        :type room_id: str
-        :param appliance_id: ID of the appliance to get details for.
-        :type appliance_id: str
-        :return: A list of Notification objects.
-        :rtype: List[Notification]
-        """
-        _LOGGER.debug('Get appliance notifications for appliance %s', appliance_id)
-        data = await self.get_appliance_notifications_raw(location_id, room_id, appliance_id)
-
-        if data is not None:
-            notifications = [Notification.from_dict(notification) for notification in data]
-            for notification in notifications:
-                notify_text: str = ''
-                notify_type: str = ''
-                try:
-                    notify_text = ondus_notifications['category'][notification.category]['type'][notification.type]
-                    notify_type = ondus_notifications['category'][notification.category]['text']
-                except KeyError:
-                    notify_text = f'Unknown: Category {notification.category}, Type {notification.type}'
-                finally:
-                    notification.notification_text = notify_text
-                    notification.notification_type = notify_type
-        else:
-            notifications = []
-
-        return notifications
-
     async def get_appliance_data_raw(self, location_id: string, room_id: string, appliance_id: string,
                                  from_date: Optional[datetime] = None, to_date: Optional[datetime] = None,
                                  group_by: Optional[OndusGroupByTypes] = None,
@@ -569,79 +473,11 @@ class OndusApi:
         return await self.__get(url)
 
 
-    async def get_appliance_data(self, location_id: string, room_id: string, appliance_id: string,
-                                 from_date: Optional[datetime] = None, to_date: Optional[datetime] = None,
-                                 group_by: Optional[OndusGroupByTypes] = None,
-                                 date_as_full_day: Optional[bool] = None) -> MeasurementData | None:
-        """
-        Retrieves aggregated data for a specific appliance within a room.
-
-
-        :param location_id: ID of the location containing the appliance.
-        :type location_id: str
-        :param room_id: ID of the room containing the appliance.
-        :type room_id: str
-        :param appliance_id: ID of the appliance to get details for.
-        :type appliance_id: str
-        :param from_date: (optional) The starting date and time to retrieve data from. Defaults to None.
-        :type from_date: datetime
-        :param to_date: (optional) The ending date and time to retrieve data to. Defaults to None.
-        :type to_date: datetime
-        :param group_by: (optional) The time period for grouping the data. Defaults to None.
-        :type group_by: OndusGroupByTypes
-        :param date_as_full_day: 
-        :type date_as_full_day: bool
-        :param export_raw_data:
-        :type export_raw_data: bool
-        :return: The aggregated measurement data for the specified appliance.
-        :rtype: MeasurementData
-        """
-        _LOGGER.debug('Get appliance data for appliance %s with (from: %s, to: %s, group_by: %s',
-                      appliance_id, from_date, to_date, group_by)
-
-        data = await self.get_appliance_data_raw(location_id, room_id, appliance_id, from_date, to_date, group_by,
-                                                 date_as_full_day)
-
-        if data is not None:
-            return MeasurementData.from_dict(data)
-        else:
-            return None
-
     async def set_appliance_command_raw(self, location_id: string, room_id: string, appliance_id: string, device_type: GroheTypes, data: Dict[str, any]) -> Dict[str, any]:
         url = f'{self.__api_url}/locations/{location_id}/rooms/{room_id}/appliances/{appliance_id}/command'
         data['type'] = device_type.value
         return await self.__post(url, data)
 
-    async def set_appliance_command(self, location_id: string, room_id: string, appliance_id: string,
-                                    command: OndusCommands, value: bool) -> ApplianceCommand:
-        """
-        This method sets the command for a specific appliance. It takes the location ID, room ID, appliance ID,
-        command, and value as parameters.
-
-        :param location_id: ID of the location containing the appliance.
-        :type location_id: str
-        :param room_id: ID of the room containing the appliance.
-        :type room_id: str
-        :param appliance_id: ID of the appliance to get details for.
-        :type appliance_id: str
-        :param command: The command to be sent to the appliance.
-        :type command: OndusCommands
-        :param value: The value associated with the command.
-        :type value: bool
-        :return: None
-        """
-        _LOGGER.debug('Set appliance command for appliance %s with (command: %s, value: %s)',
-                      appliance_id, command.value, value)
-        url = f'{self.__api_url}/locations/{location_id}/rooms/{room_id}/appliances/{appliance_id}/command'
-
-        commands: Dict[str, any] = {}
-        if command.value == OndusCommands.OPEN_VALVE.value:
-            commands[OndusCommands.OPEN_VALVE.value] = value
-
-        data = {'type': GroheTypes.GROHE_SENSE_GUARD.value, 'command': commands}
-        response = await self.__post(url, data)
-
-        return ApplianceCommand.from_dict(response)
 
     async def start_pressure_measurement(self, location_id: string, room_id: string,
                                          appliance_id: string) -> PressureMeasurementStart | None:
@@ -673,63 +509,12 @@ class OndusApi:
         data = await self.__get(url)
         return data
 
-    async def get_appliance_pressure_measurement(self, location_id: string, room_id: string, appliance_id: string) -> List[LastPressureMeasurement]:
-        """
-        Retrieves the latest pressure measurement data for a specific appliance. This
-        function fetches the data considering case insensitivity for appliance
-        details. If data is found, it converts the measurements from dictionary
-        format to instances of LastPressureMeasurement.
-
-        :param location_id: Identifier for the location where the appliance is installed.
-        :param room_id: Identifier for the room containing the appliance.
-        :param appliance_id: Unique identifier for the appliance.
-        :return: A list of LastPressureMeasurement instances containing the pressure
-                 measurements of the appliance. Returns an empty list if no data is found.
-        """
-        _LOGGER.debug('Get pressure measurement for appliance %s', appliance_id)
-        data = await self.get_appliance_pressure_measurement_raw(location_id, room_id, appliance_id)
-
-        if data is not None:
-            measurements: List[LastPressureMeasurement] = []
-            if len(data['items']) > 0:
-                for measure in data['items']:
-                    measurement = LastPressureMeasurement.from_dict(measure)
-
-                    curve = measure['pressure_curve']
-                    flow_rates = [flow['fr'] for flow in curve]
-                    flow_rates.sort(reverse=True)
-                    measurement.max_flow_rate = flow_rates[0] if len(flow_rates) > 0 else None
-                    measurements.append(measurement)
-
-            return measurements
-
-        else:
-            return []
-
 
     async def get_profile_notifications_raw(self, page_size: int = 50) -> any:
         url = f'{self.__api_url}/profile/notifications?pageSize={page_size}'
         data = await self.__get(url)
         return data
 
-
-
-    async def get_profile_notifications(self, page_size: int = 50) -> ProfileNotifications | None:
-        """
-            Get profile notifications.
-
-            :param page_size: The maximum number of notifications to retrieve per page. Default is 50.
-            :return: ProfileNotifications.
-        """
-        _LOGGER.debug('Get latest %d notifications', page_size)
-        data = await self.get_profile_notifications_raw(page_size)
-
-        if data is not None:
-            notifications = ProfileNotifications.from_dict(data)
-        else:
-            notifications = None
-
-        return notifications
 
     async def update_profile_notification_state(self, notification_id: str, state: bool) -> None:
         """

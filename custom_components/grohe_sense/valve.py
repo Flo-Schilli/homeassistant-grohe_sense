@@ -5,13 +5,10 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
 from . import (DOMAIN)
-from .api.ondus_api import OndusApi
 from .dto.config_dtos import ConfigDto
 from .dto.grohe_device import GroheDevice
 from .entities.entity_helper import EntityHelper
-from .entities.grohe_sense_guard_valve import GroheSenseGuardValve
 from .entities.interface.coordinator_interface import CoordinatorInterface
-from .enum.ondus_types import GroheTypes
 
 _LOGGER = logging.getLogger(__name__)
 
