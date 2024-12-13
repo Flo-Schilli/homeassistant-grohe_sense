@@ -58,7 +58,6 @@ class Valve(ValveEntity):
 
     @property
     def is_closed(self) -> bool:
-        _LOGGER.debug(f'Return valve position with isClosed: {self._is_closed}')
         return self._is_closed
 
     def _get_value(self, full_data: Dict[str, any]) -> bool | None:
@@ -87,7 +86,11 @@ class Valve(ValveEntity):
             data_to_set[self._valve.keypath] = state
             response_data = await self._coordinator.set_valve(data_to_set)
 
-            self._is_closed = not self._get_value(response_data)
+            value = not self._get_value(response_data)
+            _LOGGER.debug(
+                f'Device: {self._device.name} ({self._device.appliance_id}) with valve: {self._valve.name} has the following value on keypath {self._valve.keypath}: {value}')
+
+            self._is_closed = value
 
     async def async_open_valve(self) -> None:
         _LOGGER.info('Turning on water for %s', self._device.name)

@@ -73,4 +73,7 @@ class Sensor(CoordinatorEntity, SensorEntity):
     def _handle_coordinator_update(self) -> None:
         if self._coordinator is not None and self._coordinator.data is not None and self._sensor.keypath is not None:
             # We do have some data here, so let's extract it
-            self._value = self._get_value(self._coordinator.data)
+            value = self._get_value(self._coordinator.data)
+            _LOGGER.debug(
+                f'Device: {self._device.name} ({self._device.appliance_id}) with sensor: {self._sensor.name} has the following value on keypath {self._sensor.keypath}: {value}')
+            self._value = value
