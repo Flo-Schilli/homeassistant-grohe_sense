@@ -88,7 +88,7 @@ class Valve(ValveEntity):
 
             value = not self._get_value(response_data)
             _LOGGER.debug(
-                f'Device: {self._device.name} ({self._device.appliance_id}) with valve: {self._valve.name} has the following value on keypath {self._valve.keypath}: {value}')
+                f'Device: {self._device.name} ({self._device.appliance_id}) with valve name: "{self._valve.name}" has the following value on keypath "{self._valve.keypath}": {value}')
 
             self._is_closed = value
 
