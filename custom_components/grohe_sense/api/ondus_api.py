@@ -296,21 +296,18 @@ class OndusApi:
         else:
             return False
 
-    async def get_dashboard(self, export_raw_data: Optional[bool] = False) -> Locations | None:
+    async def get_dashboard_raw(self) -> Dict[str, any]:
         """
         Get the dashboard information.
         These dashboard information include most of the data which can also be queried by the appliance itself
 
         :return: The locations information obtained from the dashboard.
-        :rtype: Locations
+        :rtype: Dict[str, any]
         """
         _LOGGER.debug('Get dashboard information')
         url = f'{self.__api_url}/dashboard'
-        data = await self.__get(url)
-        if export_raw_data:
-            return data
-        else:
-            return Locations.from_dict(data)
+        return await self.__get(url)
+
 
     async def get_locations(self) -> List[Location]:
         """
@@ -371,7 +368,8 @@ class OndusApi:
 
             return appliances
 
-    async def get_appliance_info(self, location_id: string, room_id: string, appliance_id: string) -> Appliance:
+
+    async def get_appliance_info_raw(self, location_id: string, room_id: string, appliance_id: string) -> Dict[str, any]:
         """
         Get information about an appliance.
 
@@ -382,15 +380,14 @@ class OndusApi:
         :param appliance_id: ID of the appliance to get details for.
         :type appliance_id: str
         :return: The information of the appliance.
-        :rtype: Appliance
+        :rtype: Dict[str, any]
         """
         _LOGGER.debug('Get appliance information for appliance %s', appliance_id)
         url = f'{self.__api_url}/locations/{location_id}/rooms/{room_id}/appliances/{appliance_id}'
-        data = await self.__get(url)
-        return Appliance.from_dict(data)
+        return await self.__get(url)
 
 
-    async def get_appliance_details_raw(self, location_id: string, room_id: string, appliance_id: string) -> any:
+    async def get_appliance_details_raw(self, location_id: string, room_id: string, appliance_id: string) -> Dict[str, any]:
         """
         Get information about an appliance without parsing it to a struct.
 
@@ -401,14 +398,14 @@ class OndusApi:
         :param appliance_id: ID of the appliance to get details for.
         :type appliance_id: str
         :return: The information of the appliance.
-        :rtype: Appliance
+        :rtype: Dict[str, any]
         """
         _LOGGER.debug('Get appliance details for appliance (type insensitive) %s', appliance_id)
         url = f'{self.__api_url}/locations/{location_id}/rooms/{room_id}/appliances/{appliance_id}/details'
         return await self.__get(url)
 
 
-    async def get_appliance_status_raw(self, location_id: string, room_id: string, appliance_id: string) -> any:
+    async def get_appliance_status_raw(self, location_id: string, room_id: string, appliance_id: string) -> Dict[str, any]:
         url = f'{self.__api_url}/locations/{location_id}/rooms/{room_id}/appliances/{appliance_id}/status'
         return await self.__get(url)
 
@@ -423,7 +420,7 @@ class OndusApi:
         :param appliance_id: ID of the appliance to get details for.
         :type appliance_id: str
         :return: The command for the specified appliance.
-        :rtype: ApplianceCommand
+        :rtype: Dict[str, any]
         """
         _LOGGER.debug('Get appliance command for appliance %s', appliance_id)
         url = f'{self.__api_url}/locations/{location_id}/rooms/{room_id}/appliances/{appliance_id}/command'
@@ -431,7 +428,7 @@ class OndusApi:
 
 
     async def get_appliance_notifications_raw(self, location_id: string, room_id: string,
-                                              appliance_id: string, limit: Optional[int] = None) -> any:
+                                              appliance_id: string, limit: Optional[int] = None) -> Dict[str, any]:
 
         url = f'{self.__api_url}/locations/{location_id}/rooms/{room_id}/appliances/{appliance_id}/notifications'
 
@@ -449,7 +446,7 @@ class OndusApi:
     async def get_appliance_data_raw(self, location_id: string, room_id: string, appliance_id: string,
                                  from_date: Optional[datetime] = None, to_date: Optional[datetime] = None,
                                  group_by: Optional[OndusGroupByTypes] = None,
-                                 date_as_full_day: Optional[bool] = None) -> any:
+                                 date_as_full_day: Optional[bool] = None) -> Dict[str, any]:
 
         url = f'{self.__api_url}/locations/{location_id}/rooms/{room_id}/appliances/{appliance_id}/data/aggregated'
         params = dict()
@@ -504,13 +501,13 @@ class OndusApi:
             return None
 
     async def get_appliance_pressure_measurement_raw(self, location_id: string, room_id: string,
-                                                     appliance_id: string) -> any:
+                                                     appliance_id: string) -> Dict[str, any]:
         url = f'{self.__api_url}/locations/{location_id}/rooms/{room_id}/appliances/{appliance_id}/pressuremeasurement'
         data = await self.__get(url)
         return data
 
 
-    async def get_profile_notifications_raw(self, page_size: int = 50) -> any:
+    async def get_profile_notifications_raw(self, page_size: int = 50) -> Dict[str, any]:
         url = f'{self.__api_url}/profile/notifications?pageSize={page_size}'
         data = await self.__get(url)
         return data

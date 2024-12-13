@@ -62,7 +62,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     ####### SERVICES ###################################################################################################
     async def handle_dashboard_export(call: ServiceCall) -> ServiceResponse:
         _LOGGER.debug('Export data for params: %s', call.data)
-        return await api.get_dashboard(True)
+        return await api.get_dashboard_raw()
 
 
     async def handle_get_appliance_data(call: ServiceCall) -> ServiceResponse:
