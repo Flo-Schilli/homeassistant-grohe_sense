@@ -80,3 +80,4 @@ class Sensor(CoordinatorEntity, SensorEntity):
             _LOGGER.debug(
                 f'Device: {self._device.name} ({self._device.appliance_id}) with sensor: {self._sensor.name} has the following value on keypath {self._sensor.keypath}: {value}')
             self._value = value
+            self.async_write_ha_state()
