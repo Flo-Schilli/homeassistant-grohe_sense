@@ -32,6 +32,7 @@ class SensorDto:
     keypath: str
     device_class: Optional[str] = None
     category: Optional[str] = None
+    state_class: Optional[str] = None
     unit: Optional[str] = None
     enabled: Optional[bool] = True
 

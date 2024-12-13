@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from homeassistant.components.sensor import SensorEntity, SensorDeviceClass
+from homeassistant.components.sensor import SensorEntity, SensorDeviceClass, SensorStateClass
 from homeassistant.core import callback
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -30,6 +30,8 @@ class GroheSensorEntity(CoordinatorEntity, SensorEntity):
 
         if self._sensor.unit_of_measurement is not None:
             self._attr_native_unit_of_measurement = self._sensor.unit_of_measurement
+
+
 
     @property
     def device_info(self) -> DeviceInfo | None:

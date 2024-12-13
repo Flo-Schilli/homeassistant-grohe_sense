@@ -2,7 +2,7 @@ import logging
 from typing import Dict
 
 from benedict import benedict
-from homeassistant.components.sensor import SensorEntity, SensorDeviceClass
+from homeassistant.components.sensor import SensorEntity, SensorDeviceClass, SensorStateClass
 from homeassistant.const import EntityCategory
 from homeassistant.core import callback
 from homeassistant.helpers.device_registry import DeviceInfo
@@ -39,6 +39,9 @@ class Sensor(CoordinatorEntity, SensorEntity):
 
         if self._sensor.category is not None:
             self._attr_entity_category = EntityCategory(self._sensor.category.lower())
+
+        if self._sensor.state_class is not None:
+            self._attr_state_class = SensorStateClass(self._sensor.state_class.lower().replace(" ", "_"))
 
     @property
     def device_info(self) -> DeviceInfo | None:
