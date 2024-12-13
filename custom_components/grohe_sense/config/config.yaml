@@ -15,8 +15,8 @@ devices:
           device_class: 'Battery'
           unit: 'Percentage'
           category: 'Diagnostic'
-        - name: 'Latest notification'
-          keypath: 'details.notification[0]'
+#        - name: 'Latest notification'
+#          keypath: 'details.notification[0]'
     - type: GroheSenseGuard
       valves:
         - name: 'Valve'
@@ -59,8 +59,8 @@ devices:
           keypath: 'details.data_latest.measurement.pressure'
           device_class: 'Pressure'
           unit: 'Bar'
-        - name: 'Latest notification'
-          keypath: 'details.notification[0]'
+#        - name: 'Latest notification'
+#          keypath: 'details.notification[0]'
         - name: 'Update available'
           keypath: 'status.update_available'
           category: 'Diagnostic'

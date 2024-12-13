@@ -5,17 +5,18 @@
 Grohe Sense and Grohe Blue integration for Home Assistant
 
 This is an integration to get Grohe Sense (small leak sensor) and Grohe Sense Guard (main water pipe sensor/breaker) sensors into Home Assistant.
-Additionally, also the Grohe Blue Professional (water filter with carbonation) is now integrated into Home Assistant
-Not affiliated with Grohe. 
+Additionally, also the Grohe Blue Home/Professional (water filter with carbonation) are now integrated into Home Assistant.
 
 ## Devices
 Below is a list of supported devices.
 
 ### Grohe Sense
 When you install this, you get the following sensors for Sense:
- - **humidity**
- - **temperature**
- - **notifications**
+ - **Temperature**
+ - **Humidity**
+
+And the following diagnostic sensor:
+ - **Battery**
 
 It's a small, battery-powered device, so don't expect frequent updates. 
 It seems to measure every hour, but the app also said it only uploads every 24h. 
@@ -23,33 +24,22 @@ The sensors I implemented only give the latest measurement returned from the ser
 
 ### Grohe Sense Guard 
 When you install this, you get the following sensors for each Sense Guard:
- - **water_consumption** (as total increasing)
- - **flow_rate**
- - **pressure** 
- - **temperature**
- - **notifications**
+ - **Consumption today** (as total increasing)
+ - **Actual flow rate**
+ - **Actual pressure** 
+ - **Average daily consumption**
+ - **Average monthly consumption**
+ - **Latest consumption**
+ - **Latest max flow rate**
+ - **Temperature**
 
-You will also get a valve device (so, be careful with `group.all_switches`, as that now includes your water) called
- - **valve**
+And the following diagnostic sensors:
+ - **Online**
+ - **Update available**
+ - **Wifi quality**
 
-#### Pressure Measurement
-**Hint:** This is only enabled for Grohe Sense Guard with Software Version 3.6 or newer
-
-You will also get a button entity for triggering the pressure measurement
- - **pressure_measurement**
-
-As you now can trigger also the pressure measurement, you also get the following sensors for that:
- - **lpm_start_time** to show you when the last pressure measurement was started
- - **lpm_estimated_stop_time** to show when it is estimated to finish the measurement
- - **lpm_status** which can be START (it is running right now) or SUCCESS (Measurement finished - even partial)
- - **lpm_duration** to show the duration the measurement took
- - **lpm_leakage** to show if a leakage was detected (not sure if this one is true also means you'll get a notification from Grohe or not)
- - **lpm_leakage_level** to give you a possible 'rating' of the urgency of the leakage
- - **lpm_pressure_drop** to give you the whole pressure drop during measurement
- - **lpm_max_flow_rate** the maximum flow rate during pressure measurement from the measurement curve list
-
-**Hint:** At the moment I am not 100% sure about each of the above-mentioned sensors and their actual behaviour
-
+You will also get a valve device called
+ - **Valve**
 
 The Sense Guard uploads data to its server every 15 minutes (at least the one I have), so don't expect to use this for anything close to real-time. 
 For water withdrawals, it seems to report the withdrawal only when it ends, so if you continuously withdraw water, I guess those sensors may stay at 0. 
@@ -58,29 +48,32 @@ Hopefully, that would show up in the flow_rate sensor.
 ### Grohe Blue Home/Professional
 
 When you install this, you get the following sensors for each Grohe Blue Home and Professional:
+- **Cycles carbonated**
+- **Cycles still**
+- **Date cleaning**
+- **Date CO2 replacement**
+- **Date Filter replacement**
+- **Time idle (max)**
+- **Time operating**
+- **Time pump running**
+- **Time since last withdrawal**
+- **Water running carbonated**
+- **Water running medium**
+- **Water running still**
+- **Remaining CO2**
+- **Remaining Filter**
+- **Remaining CO2 total**
+- **Remaining Filter total**
 
-- **cleaning_count**
-- **date_of_cleaning**
-- **date_of_co2_replacement**
-- **date_of_filter_replacement**
-- **filter_change_count**
-- **max_idle_time**
-- **open_close_cycles_carbonated**
-- **open_close_cycles_still**
-- **operating_time**
-- **power_cut_count**
-- **pump_count**
-- **pump_running_time**
-- **remaining_co2**
-- **remaining_filter**
-- **time_since_last_withdrawal**
-- **time_since_restart**
-- **time_offset**
-- **water_running_time_carbonated**
-- **water_running_time_medium**
-- **water_running_time_still**
-- **remaining_filter_liters**
-- **remaining_co2_liters**
+And the following diagnostic sensors:
+- **Count cleaning**
+- **Count filter change**
+- **Count Power cut**
+- **Count pump**
+- **Time since restart**
+- **Time offset**
+- **Update available**
+- **Online**
 
 ### For all devices
 The notifications sensor is a string of all your unread notifications (newline-separated).
@@ -94,7 +87,7 @@ This can be found by finding the corresponding notification in the Grohe Sense a
 ## Automation ideas
 - Turning water off when you're away (and dishwasher, washer, et.c. are not running) and turning it back on when home again.
 - Turning water off when non-Grohe sensors detect water.
-- Passing along notifications from Grohe sense to Slack (note that there is a polling delay, plus unknown delay between device and Grohe's cloud)
+- Passing along notifications from Grohe sense to Slack/Matrix/Amazon (note that there is a polling delay, plus unknown delay between device and Grohe's cloud)
 - Send Slack notification when your alarm is armed away and flowrate is >0 (controlling for the high latency, plus dishwashers, ice makers, et.c.).
 
 Graphing water consumption is also nice. Note that the data returned by Grohe's servers is extremely detailed, so for nicer graphs, you may want to talk to the servers directly and access the json data, rather than go via this integration.
