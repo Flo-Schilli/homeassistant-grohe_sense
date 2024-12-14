@@ -296,6 +296,9 @@ class OndusApi:
         else:
             return False
 
+    def get_user_claim(self) -> str:
+        return self.__user_id
+
     async def get_dashboard_raw(self) -> Dict[str, any]:
         """
         Get the dashboard information.
@@ -524,6 +527,7 @@ class OndusApi:
         _LOGGER.debug('Set state of notification %s to %s', notification_id, state)
         url = f'{self.__api_url}/profile/notifications/{notification_id}'
         data = {'is_read': state}
-        await self.__put(url, data)
+        ret_val = await self.__put(url, data)
+        _LOGGER.debug(f'Notification {notification_id} updated. Return value: {ret_val}')
 
         return None

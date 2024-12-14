@@ -1,13 +1,14 @@
 import logging
 from typing import List
 
-from custom_components.grohe_sense.dto.config_dtos import ConfigDto
+from custom_components.grohe_sense.dto.config_dtos import ConfigDto, NotificationDto, NotificationsDto
 from custom_components.grohe_sense.dto.grohe_device import GroheDevice
 from custom_components.grohe_sense.entities.coordinator.blue_home_coordinator import BlueHomeCoordinator
 from custom_components.grohe_sense.entities.coordinator.blue_prof_coordinator import BlueProfCoordinator
 from custom_components.grohe_sense.entities.coordinator.guard_coordinator import GuardCoordinator
 from custom_components.grohe_sense.entities.coordinator.sense_coordinator import SenseCoordinator
 from custom_components.grohe_sense.entities.entity.sensor import Sensor
+from custom_components.grohe_sense.entities.entity.todo import Todo
 from custom_components.grohe_sense.entities.entity.valve import Valve
 from custom_components.grohe_sense.entities.interface.coordinator_interface import CoordinatorInterface
 
@@ -41,6 +42,20 @@ class EntityHelper:
                     entities.append(Sensor(self._domain, coordinator, device, sensor, initial_value))
             if entities:
                 async_add_entities(entities, update_before_add=True)
+
+    async def add_todo_entities(self, coordinator: CoordinatorInterface, user_id: str,
+                                notification_config: NotificationsDto, async_add_entities):
+        profile = self._config.profile
+
+        entities: List = []
+        if profile is not None and profile.todos is not None:
+            await coordinator.get_initial_value()
+            for todo in profile.todos:
+                _LOGGER.debug(f'Adding todo {todo.name} for generic user profile')
+                entities.append(Todo(self._domain, coordinator, user_id, todo, notification_config, None))
+        if entities:
+            async_add_entities(entities, update_before_add=True)
+
 
     async def add_valve_entities(self, coordinator: CoordinatorInterface, device: GroheDevice, async_add_entities):
 

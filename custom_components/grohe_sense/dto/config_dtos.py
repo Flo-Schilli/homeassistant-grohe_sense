@@ -23,6 +23,16 @@ class NotificationDto:
 class NotificationsDto:
     notifications: List[NotificationDto]
 
+    def get_notification(self, category: int, subcategory: int) -> str:
+        notify_category = [cat for cat in self.notifications if cat.category == category]
+        if len(notify_category) == 1:
+            notify_cat = notify_category[0]
+            notify_subcat = [cat for cat in notify_cat.sub_category if cat.id == subcategory]
+            if len(notify_subcat) == 1:
+                subcat_info = notify_subcat[0]
+                return subcat_info.text
+        return f'Unknown Notification {category}/{subcategory}'
+
 
 #### CONFIG.YAML #######################################################################################################
 @dataclass_json
@@ -35,6 +45,12 @@ class SensorDto:
     state_class: Optional[str] = None
     unit: Optional[str] = None
     enabled: Optional[bool] = True
+
+@dataclass_json
+@dataclass
+class TodoDto:
+    name: str
+    keypath: str
 
 @dataclass_json
 @dataclass
@@ -51,17 +67,22 @@ class DeviceDto:
     sensors: List[SensorDto]
     valves: Optional[List[ValveDto]] = None
 
-
 @dataclass_json
 @dataclass
 class DevicesDto:
     device: List[DeviceDto]
+
+@dataclass_json
+@dataclass
+class ProfileDto:
+    todos: Optional[List[TodoDto]] = None
 
 
 @dataclass_json
 @dataclass
 class ConfigDto:
     devices: DevicesDto
+    profile: ProfileDto
     
     def get_device_config(self, device_type: str) -> Optional[DeviceDto]:
         """

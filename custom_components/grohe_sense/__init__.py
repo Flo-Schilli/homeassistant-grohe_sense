@@ -14,6 +14,7 @@ from custom_components.grohe_sense.entities.config_loader import ConfigLoader
 from custom_components.grohe_sense.entities.coordinator.blue_home_coordinator import BlueHomeCoordinator
 from custom_components.grohe_sense.entities.coordinator.blue_prof_coordinator import BlueProfCoordinator
 from custom_components.grohe_sense.entities.coordinator.guard_coordinator import GuardCoordinator
+from custom_components.grohe_sense.entities.coordinator.profile_coordinator import ProfileCoordinator
 from custom_components.grohe_sense.entities.coordinator.sense_coordinator import SenseCoordinator
 from custom_components.grohe_sense.entities.interface.coordinator_interface import CoordinatorInterface
 from custom_components.grohe_sense.enum.ondus_types import GroheTypes, OndusGroupByTypes
@@ -52,6 +53,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         elif device.type == GroheTypes.GROHE_BLUE_PROFESSIONAL:
             blue_prof_coordinator = BlueProfCoordinator(hass, DOMAIN, device, api)
             coordinators[device.appliance_id] = blue_prof_coordinator
+
+    # Add a generic profile coordinator so that we can use general data for the user profile as well
+    profile_coordinator = ProfileCoordinator(hass, DOMAIN, api)
+    coordinators[api.get_user_claim()] = profile_coordinator
 
     # Store devices and login information into hass object
     hass.data[DOMAIN] = {'session': api, 'devices': devices, 'coordinator': coordinators, 'notifications': notifications, 'config': config}

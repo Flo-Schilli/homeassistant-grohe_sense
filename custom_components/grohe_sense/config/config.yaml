@@ -1,3 +1,7 @@
+profile:
+  todos:
+    - name: 'Notifications'
+      keypath: 'notifications.notifications'
 devices:
   device:
     - type: GroheSense
