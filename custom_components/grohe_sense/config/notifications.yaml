@@ -72,8 +72,14 @@ notifications:
         text: 'Sense guard lost WiFi'
       - id: 381
         text: 'Water pressure drops detected'
+      - id: 383
+        text: 'Potential leak detected'
       - id: 385
         text: 'Water pressure drops detected. Severity has increased'
+      - id: 386
+        text: 'Undefined notification'
+      - id: 387
+        text: 'Undefined notification'
       - id: 420
         text: 'Multiple water pressure drops detected - water supply switched off'
       - id: 421

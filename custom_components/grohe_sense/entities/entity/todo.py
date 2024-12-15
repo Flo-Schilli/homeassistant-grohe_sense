@@ -3,6 +3,7 @@ from typing import Dict, List
 
 from benedict import benedict
 from homeassistant.components.todo import TodoListEntity, TodoListEntityFeature, TodoItem, TodoItemStatus
+from homeassistant.core import callback
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity, DataUpdateCoordinator
 
@@ -87,5 +88,9 @@ class Todo(CoordinatorEntity, TodoListEntity):
             await self._coordinator.update_notification(item.uid, status)
             await self._coordinator.async_request_refresh()
             self._update_data()
+
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        self._update_data()
 
 
