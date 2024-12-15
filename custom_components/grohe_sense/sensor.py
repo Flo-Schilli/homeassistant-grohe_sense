@@ -4,7 +4,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
 from .const import (DOMAIN)
-from .dto.config_dtos import ConfigDto
+from .dto.config_dtos import ConfigDto, NotificationsDto
 from .dto.grohe_device import GroheDevice
 from .entities.entity_helper import EntityHelper
 from .entities.interface.coordinator_interface import CoordinatorInterface
@@ -18,9 +18,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     devices: List[GroheDevice] = hass.data[DOMAIN]['devices']
     config: ConfigDto = hass.data[DOMAIN]['config']
     coordinators: Dict[str, CoordinatorInterface] = hass.data[DOMAIN]['coordinator']
+    notification_config: NotificationsDto = hass.data[DOMAIN]['notifications']
     helper: EntityHelper = EntityHelper(config, DOMAIN)
 
     for device in devices:
         coordinator = coordinators.get(device.appliance_id, None)
         if coordinator is not None:
-            await helper.add_sensor_entities(coordinator, device, async_add_entities)
+            await helper.add_sensor_entities(coordinator, device, notification_config, async_add_entities)

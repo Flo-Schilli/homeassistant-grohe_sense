@@ -12,20 +12,21 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity, DataUpda
 from ..coordinator.sense_coordinator import SenseCoordinator
 from ..helper import Helper
 from ...dto.grohe_device import GroheDevice
-from ...dto.config_dtos import SensorDto
+from ...dto.config_dtos import SensorDto, NotificationsDto
 
 _LOGGER = logging.getLogger(__name__)
 
 
 class Sensor(CoordinatorEntity, SensorEntity):
     def __init__(self, domain: str, coordinator: DataUpdateCoordinator, device: GroheDevice, sensor: SensorDto,
-                 initial_value: Dict[str, any] = None):
+                 notification_config: NotificationsDto, initial_value: Dict[str, any] = None):
         super().__init__(coordinator)
         self._coordinator = coordinator
         self._device = device
+        self._notification_config = notification_config
         self._sensor = sensor
         self._domain = domain
-        self._value: float | str | int | None = self._get_value(initial_value)
+        self._value: float | str | int | dict[str, any] | None = self._get_value(initial_value)
 
         # Needed for Sensor Entity
         self._attr_name = f'{self._device.name} {self._sensor.name}'
@@ -60,11 +61,11 @@ class Sensor(CoordinatorEntity, SensorEntity):
     def native_value(self):
         return self._value
 
-    def _get_value(self, full_data: Dict[str, any]) -> float | int | str | None:
+    def _get_value(self, full_data: Dict[str, any]) -> float | int | str | dict[str, any] | None:
         if self._sensor.keypath is not None:
             # We do have some data here, so let's extract it
             data = benedict(full_data)
-            value: float | int | str | None = None
+            value: float | int | str | dict[str, any] | None = None
             try:
                 value = data.get(self._sensor.keypath)
 
@@ -83,6 +84,11 @@ class Sensor(CoordinatorEntity, SensorEntity):
 
             if self._sensor.device_class is not None and self._sensor.device_class == 'Timestamp' and value is not None:
                 value = datetime.fromisoformat(value)
+
+            if self._sensor.is_notification and value is not None and isinstance(value, dict):
+                value = self._notification_config.get_notification(value.get('category'), value.get('notification_type'))
+            elif self._sensor.is_notification and value is None:
+                value = 'No actual notification'
 
             self._value = value
             self.async_write_ha_state()

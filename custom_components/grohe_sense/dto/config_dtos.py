@@ -45,6 +45,7 @@ class SensorDto:
     state_class: Optional[str] = None
     unit: Optional[str] = None
     enabled: Optional[bool] = True
+    is_notification: Optional[bool] = False
 
 @dataclass_json
 @dataclass
@@ -62,9 +63,15 @@ class ValveDto:
 
 @dataclass_json
 @dataclass
+class ProfileDto:
+    todos: Optional[List[TodoDto]] = None
+
+@dataclass_json
+@dataclass
 class DeviceDto:
     type: str
     sensors: List[SensorDto]
+    profile: Optional[ProfileDto] = None
     valves: Optional[List[ValveDto]] = None
 
 @dataclass_json
@@ -74,15 +81,8 @@ class DevicesDto:
 
 @dataclass_json
 @dataclass
-class ProfileDto:
-    todos: Optional[List[TodoDto]] = None
-
-
-@dataclass_json
-@dataclass
 class ConfigDto:
     devices: DevicesDto
-    profile: ProfileDto
     
     def get_device_config(self, device_type: str) -> Optional[DeviceDto]:
         """

@@ -1,10 +1,10 @@
-profile:
-  todos:
-    - name: 'Notifications'
-      keypath: 'notifications.notifications'
 devices:
   device:
     - type: GroheSense
+      profile:
+        todos:
+          - name: 'Notifications'
+            keypath: 'notifications.notifications'
       sensors:
         - name: 'Temperature'
           keypath: 'details.data_latest.measurement.temperature'
@@ -19,9 +19,14 @@ devices:
           device_class: 'Battery'
           unit: 'Percentage'
           category: 'Diagnostic'
-#        - name: 'Latest notification'
-#          keypath: 'details.notification[0]'
+        - name: 'Latest notification'
+          keypath: 'details.notification[0]'
+          is_notification: True
     - type: GroheSenseGuard
+      profile:
+        todos:
+          - name: 'Notifications'
+            keypath: 'notifications.notifications'
       valves:
         - name: 'Valve'
           keypath: 'command.valve_open'
@@ -63,8 +68,9 @@ devices:
           keypath: 'details.data_latest.measurement.pressure'
           device_class: 'Pressure'
           unit: 'Bar'
-#        - name: 'Latest notification'
-#          keypath: 'details.notification[0]'
+        - name: 'Latest notification'
+          keypath: 'details.notification[0]'
+          is_notification: True
         - name: 'Update available'
           keypath: 'status.update_available'
           category: 'Diagnostic'
@@ -78,7 +84,15 @@ devices:
           category: 'Diagnostic'
           enabled: false
     - type: GroheBlueHome
+      profile:
+        todos:
+          - name: 'Notifications'
+            keypath: 'notifications.notifications'
       sensors:
+        - name: 'Latest notification'
+          keypath: 'details.notification[0]'
+          is_notification: True
+
         - name: 'Cycles carbonated'
           keypath: 'details.data_latest.measurement.open_close_cycles_carbonated'
         - name: 'Cycles still'
@@ -179,7 +193,15 @@ devices:
           enabled: false
 
     - type: GroheBlueProf
+      profile:
+        todos:
+          - name: 'Notifications'
+            keypath: 'notifications.notifications'
       sensors:
+        - name: 'Latest notification'
+          keypath: 'details.notification[0]'
+          is_notification: True
+
         - name: 'Cycles carbonated'
           keypath: 'details.data_latest.measurement.open_close_cycles_carbonated'
         - name: 'Cycles still'

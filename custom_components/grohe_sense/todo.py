@@ -18,11 +18,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 
     api: OndusApi = hass.data[DOMAIN]['session']
     config: ConfigDto = hass.data[DOMAIN]['config']
+    devices: List[GroheDevice] = hass.data[DOMAIN]['devices']
     coordinators: Dict[str, CoordinatorInterface] = hass.data[DOMAIN]['coordinator']
     notification_config: NotificationsDto = hass.data[DOMAIN]['notifications']
     helper: EntityHelper = EntityHelper(config, DOMAIN)
 
-    if coordinators.get(api.get_user_claim(), None) is not None:
-        await helper.add_todo_entities(coordinators.get(api.get_user_claim(), None), api.get_user_claim(),
-                                       notification_config, async_add_entities)
+    for device in devices:
+        if coordinators.get(api.get_user_claim(), None) is not None:
+            await helper.add_todo_entities(coordinators.get(api.get_user_claim(), None), device,
+                                           notification_config, async_add_entities)
 

@@ -16,7 +16,7 @@ _LOGGER = logging.getLogger(__name__)
 
 class ProfileCoordinator(DataUpdateCoordinator, CoordinatorInterface):
     def __init__(self, hass: HomeAssistant, domain: str, api: OndusApi) -> None:
-        super().__init__(hass, _LOGGER, name='Grohe', update_interval=timedelta(seconds=300), always_update=True)
+        super().__init__(hass, _LOGGER, name='Grohe', update_interval=timedelta(seconds=900), always_update=True)
         self._api = api
         self._domain = domain
 

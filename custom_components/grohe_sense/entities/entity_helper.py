@@ -11,6 +11,7 @@ from custom_components.grohe_sense.entities.entity.sensor import Sensor
 from custom_components.grohe_sense.entities.entity.todo import Todo
 from custom_components.grohe_sense.entities.entity.valve import Valve
 from custom_components.grohe_sense.entities.interface.coordinator_interface import CoordinatorInterface
+from custom_components.grohe_sense.enum.ondus_types import GroheTypes
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -20,18 +21,24 @@ class EntityHelper:
         self._config = config
         self._domain = domain
 
-
-    async def add_sensor_entities(self, coordinator: CoordinatorInterface, device: GroheDevice, async_add_entities):
-
+    def _get_config_name_by_device_type(self, device: GroheDevice) -> str:
         config_name: str = ''
-        if isinstance(coordinator, SenseCoordinator):
+        if device.type == GroheTypes.GROHE_SENSE:
             config_name = 'GroheSense'
-        elif isinstance(coordinator, GuardCoordinator):
+        elif device.type == GroheTypes.GROHE_SENSE_GUARD:
             config_name = 'GroheSenseGuard'
-        elif isinstance(coordinator, BlueHomeCoordinator):
+        elif device.type == GroheTypes.GROHE_BLUE_HOME:
             config_name = 'GroheBlueHome'
-        elif isinstance(coordinator, BlueProfCoordinator):
+        elif device.type == GroheTypes.GROHE_BLUE_PROFESSIONAL:
             config_name = 'GroheBlueProf'
+
+        return config_name
+
+
+    async def add_sensor_entities(self, coordinator: CoordinatorInterface, device: GroheDevice,
+                                  notification_config: NotificationsDto, async_add_entities):
+
+        config_name = self._get_config_name_by_device_type(device)
 
         if config_name:
             entities: List = []
@@ -39,35 +46,29 @@ class EntityHelper:
             if self._config.get_device_config(config_name) is not None:
                 for sensor in self._config.get_device_config(config_name).sensors:
                     _LOGGER.debug(f'Adding sensor {sensor.name} for device {device.name}')
-                    entities.append(Sensor(self._domain, coordinator, device, sensor, initial_value))
+                    entities.append(Sensor(self._domain, coordinator, device, sensor, notification_config, initial_value))
             if entities:
                 async_add_entities(entities, update_before_add=True)
 
-    async def add_todo_entities(self, coordinator: CoordinatorInterface, user_id: str,
+    async def add_todo_entities(self, coordinator: CoordinatorInterface, device: GroheDevice,
                                 notification_config: NotificationsDto, async_add_entities):
-        profile = self._config.profile
+
+        config_name = self._get_config_name_by_device_type(device)
 
         entities: List = []
-        if profile is not None and profile.todos is not None:
-            await coordinator.get_initial_value()
-            for todo in profile.todos:
-                _LOGGER.debug(f'Adding todo {todo.name} for generic user profile')
-                entities.append(Todo(self._domain, coordinator, user_id, todo, notification_config, None))
+        if (self._config.get_device_config(config_name) is not None
+         and self._config.get_device_config(config_name).profile is not None
+         and self._config.get_device_config(config_name).profile.todos is not None):
+            for todo in self._config.get_device_config(config_name).profile.todos:
+                _LOGGER.debug(f'Adding todo {todo.name} for device {device.name}')
+                entities.append(Todo(self._domain, coordinator, device, todo, notification_config))
         if entities:
             async_add_entities(entities, update_before_add=True)
 
 
     async def add_valve_entities(self, coordinator: CoordinatorInterface, device: GroheDevice, async_add_entities):
 
-        config_name: str = ''
-        if isinstance(coordinator, SenseCoordinator):
-            config_name = 'GroheSense'
-        elif isinstance(coordinator, GuardCoordinator):
-            config_name = 'GroheSenseGuard'
-        elif isinstance(coordinator, BlueHomeCoordinator):
-            config_name = 'GroheBlueHome'
-        elif isinstance(coordinator, BlueProfCoordinator):
-            config_name = 'GroheBlueProf'
+        config_name = self._get_config_name_by_device_type(device)
 
         if config_name:
             entities: List = []
