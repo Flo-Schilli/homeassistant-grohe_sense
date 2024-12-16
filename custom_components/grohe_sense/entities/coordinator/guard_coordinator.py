@@ -31,6 +31,12 @@ class GuardCoordinator(DataUpdateCoordinator, CoordinatorInterface, CoordinatorV
             self._device.room_id,
             self._device.appliance_id)
 
+        pressure = await self._api.get_appliance_pressure_measurement_raw(
+            self._device.location_id,
+            self._device.room_id,
+            self._device.appliance_id
+        )
+
         try:
             status = { val['type']: val['value'] for val in api_data['status'] }
         except AttributeError as e:
@@ -38,7 +44,7 @@ class GuardCoordinator(DataUpdateCoordinator, CoordinatorInterface, CoordinatorV
             status = None
 
 
-        data = {'details': api_data, 'status': status}
+        data = {'details': api_data, 'status': status, 'pressure': pressure}
 
         return data
 

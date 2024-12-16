@@ -69,6 +69,26 @@ devices:
         - name: 'Latest notification'
           keypath: 'details.notification[0]'
           is_notification: True
+
+        - name: 'PM: Pressure drop'
+          keypath: 'pressure.items[0].drop_of_pressure'
+          device_class: 'Pressure'
+          unit: 'Bar'
+          enabled: false
+          min_version: '3.06'
+        - name: 'PM: Is Leakage'
+          keypath: 'pressure.items[0].leakage'
+          enabled: false
+          min_version: '3.06'
+        - name: 'PM: Leakage level'
+          keypath: 'pressure.items[0].level'
+          enabled: false
+          min_version: '3.06'
+        - name: 'PM: Runtime'
+          keypath: 'pressure.items[0].start_time'
+          device_class: 'Timestamp'
+          enabled: false
+
         - name: 'Update available'
           keypath: 'status.update_available'
           category: 'Diagnostic'

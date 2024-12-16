@@ -1,7 +1,7 @@
 import logging
 from typing import List
 
-from custom_components.grohe_sense.dto.config_dtos import ConfigDto, NotificationDto, NotificationsDto
+from custom_components.grohe_sense.dto.config_dtos import ConfigDto, NotificationDto, NotificationsDto, SensorDto
 from custom_components.grohe_sense.dto.grohe_device import GroheDevice
 from custom_components.grohe_sense.entities.coordinator.blue_home_coordinator import BlueHomeCoordinator
 from custom_components.grohe_sense.entities.coordinator.blue_prof_coordinator import BlueProfCoordinator
@@ -20,6 +20,13 @@ class EntityHelper:
     def __init__(self, config: ConfigDto, domain: str):
         self._config = config
         self._domain = domain
+
+    def _is_valid_version(self, device: GroheDevice, sensor: SensorDto):
+        if sensor.min_version is not None:
+            sensor_version = tuple(map(int, sensor.min_version.split('.')[:2]))
+            return device.stripped_sw_version >= sensor_version
+        else:
+            return True
 
     def _get_config_name_by_device_type(self, device: GroheDevice) -> str:
         config_name: str = ''
@@ -45,8 +52,9 @@ class EntityHelper:
             initial_value = await coordinator.get_initial_value()
             if self._config.get_device_config(config_name) is not None:
                 for sensor in self._config.get_device_config(config_name).sensors:
-                    _LOGGER.debug(f'Adding sensor {sensor.name} for device {device.name}')
-                    entities.append(Sensor(self._domain, coordinator, device, sensor, notification_config, initial_value))
+                    if self._is_valid_version(device, sensor):
+                        _LOGGER.debug(f'Adding sensor {sensor.name} for device {device.name}')
+                        entities.append(Sensor(self._domain, coordinator, device, sensor, notification_config, initial_value))
             if entities:
                 async_add_entities(entities, update_before_add=True)
 
