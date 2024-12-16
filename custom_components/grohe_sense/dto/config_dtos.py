@@ -63,15 +63,10 @@ class ValveDto:
 
 @dataclass_json
 @dataclass
-class ProfileDto:
-    todos: Optional[List[TodoDto]] = None
-
-@dataclass_json
-@dataclass
 class DeviceDto:
     type: str
     sensors: List[SensorDto]
-    profile: Optional[ProfileDto] = None
+    todos: Optional[List[TodoDto]] = None
     valves: Optional[List[ValveDto]] = None
 
 @dataclass_json

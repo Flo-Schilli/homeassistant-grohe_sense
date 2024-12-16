@@ -1,10 +1,9 @@
 devices:
   device:
     - type: GroheSense
-      profile:
-        todos:
-          - name: 'Notifications'
-            keypath: 'notifications.notifications'
+      todos:
+        - name: 'Notifications'
+          keypath: 'notifications.notifications'
       sensors:
         - name: 'Temperature'
           keypath: 'details.data_latest.measurement.temperature'
@@ -23,10 +22,9 @@ devices:
           keypath: 'details.notification[0]'
           is_notification: True
     - type: GroheSenseGuard
-      profile:
-        todos:
-          - name: 'Notifications'
-            keypath: 'notifications.notifications'
+      todos:
+        - name: 'Notifications'
+          keypath: 'notifications.notifications'
       valves:
         - name: 'Valve'
           keypath: 'command.valve_open'
@@ -84,10 +82,9 @@ devices:
           category: 'Diagnostic'
           enabled: false
     - type: GroheBlueHome
-      profile:
-        todos:
-          - name: 'Notifications'
-            keypath: 'notifications.notifications'
+      todos:
+        - name: 'Notifications'
+          keypath: 'notifications.notifications'
       sensors:
         - name: 'Latest notification'
           keypath: 'details.notification[0]'
@@ -193,10 +190,9 @@ devices:
           enabled: false
 
     - type: GroheBlueProf
-      profile:
-        todos:
-          - name: 'Notifications'
-            keypath: 'notifications.notifications'
+      todos:
+        - name: 'Notifications'
+          keypath: 'notifications.notifications'
       sensors:
         - name: 'Latest notification'
           keypath: 'details.notification[0]'

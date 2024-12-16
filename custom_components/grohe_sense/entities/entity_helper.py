@@ -57,9 +57,8 @@ class EntityHelper:
 
         entities: List = []
         if (self._config.get_device_config(config_name) is not None
-         and self._config.get_device_config(config_name).profile is not None
-         and self._config.get_device_config(config_name).profile.todos is not None):
-            for todo in self._config.get_device_config(config_name).profile.todos:
+         and self._config.get_device_config(config_name).todos is not None):
+            for todo in self._config.get_device_config(config_name).todos:
                 _LOGGER.debug(f'Adding todo {todo.name} for device {device.name}')
                 entities.append(Todo(self._domain, coordinator, device, todo, notification_config))
         if entities:
