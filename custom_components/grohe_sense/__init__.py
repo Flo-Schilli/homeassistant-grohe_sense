@@ -97,6 +97,34 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         else:
             return {}
 
+    async def handle_get_appliance_command(call: ServiceCall) -> ServiceResponse:
+        _LOGGER.debug('Get possible commands for params: %s', call.data)
+        device = find_device_by_name(devices, call.data['device_name'])
+
+        if device:
+            data = await api.get_appliance_command_raw(device.location_id, device.room_id, device.appliance_id)
+            if data is None:
+                return {}
+            else:
+                return data
+        else:
+            return {}
+
+    async def handle_set_appliance_command(call: ServiceCall) -> ServiceResponse:
+        _LOGGER.debug('Set commands for params: %s', call.data)
+        device = find_device_by_name(devices, call.data['device_name'])
+        commands = call.data.get('commands')
+
+        data_to_send = {'command': commands}
+        if device:
+            data = await api.set_appliance_command_raw(device.location_id, device.room_id, device.appliance_id, device.type, data_to_send)
+            if data is None:
+                return {}
+            else:
+                return data
+        else:
+            return {}
+
     async def handle_get_appliance_status(call: ServiceCall) -> ServiceResponse:
         _LOGGER.debug('Get status for params: %s', call.data)
         device = find_device_by_name(devices, call.data['device_name'])
@@ -190,6 +218,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     hass.services.async_register(
         DOMAIN,
+        'get_appliance_command',
+        handle_get_appliance_command,
+        schema=voluptuous.Schema({
+            voluptuous.Required('device_name'): str,
+        }),
+        supports_response=SupportsResponse.ONLY)
+
+    hass.services.async_register(
+        DOMAIN,
         'get_appliance_status',
         handle_get_appliance_status,
         schema=voluptuous.Schema({
@@ -212,6 +249,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         handle_get_appliance_pressure_measurement,
         schema=voluptuous.Schema({
             voluptuous.Required('device_name'): str,
+        }),
+        supports_response=SupportsResponse.ONLY)
+
+    hass.services.async_register(
+        DOMAIN,
+        'set_appliance_command',
+        handle_set_appliance_command,
+        schema=voluptuous.Schema({
+            voluptuous.Required('device_name'): str,
+            voluptuous.Required('commands'): dict,
         }),
         supports_response=SupportsResponse.ONLY)
 
