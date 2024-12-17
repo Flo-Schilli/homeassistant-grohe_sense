@@ -37,6 +37,34 @@ get_appliance_details:
       selector:
         text:
 
+get_appliance_command:
+  name: Get Appliance command
+  description: Get the actual possible appliance commands for the provided device name
+  fields:
+    device_name:
+      name: Device name
+      description: The name of the device for which the data should be queried
+      required: true
+      selector:
+        text:
+
+set_appliance_command:
+  name: Set Appliance command
+  description: Send a command to the appliance for the provided device name
+  fields:
+    device_name:
+      name: Device name
+      description: The name of the device for which the data should be queried
+      required: true
+      selector:
+        text:
+    commands:
+      name: Commands to send
+      description: The commands which shall be send to the device
+      required: true
+      selector:
+        object:
+
 get_appliance_status:
   name: Get Appliance status
   description: Get the actual appliance status for the provided device name
