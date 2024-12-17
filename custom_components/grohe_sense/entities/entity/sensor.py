@@ -26,7 +26,7 @@ class Sensor(CoordinatorEntity, SensorEntity):
         self._notification_config = notification_config
         self._sensor = sensor
         self._domain = domain
-        self._value: float | str | int | dict[str, any] | None = self._get_value(initial_value)
+        self._value: float | str | int | dict[str, any] | datetime | None = self._get_value(initial_value)
 
         # Needed for Sensor Entity
         self._attr_name = f'{self._device.name} {self._sensor.name}'
@@ -61,16 +61,24 @@ class Sensor(CoordinatorEntity, SensorEntity):
     def native_value(self):
         return self._value
 
-    def _get_value(self, full_data: Dict[str, any]) -> float | int | str | dict[str, any] | None:
+    def _get_value(self, full_data: Dict[str, any]) -> float | int | str | dict[str, any] | datetime | None:
         if self._sensor.keypath is not None:
             # We do have some data here, so let's extract it
             data = benedict(full_data)
-            value: float | int | str | dict[str, any] | None = None
+            value: float | int | str | dict[str, any] | datetime | None = None
             try:
                 value = data.get(self._sensor.keypath)
 
             except KeyError:
                 _LOGGER.error(f'Device: {self._device.name} ({self._device.appliance_id}) with sensor: {self._sensor.name} has no value on keypath: {self._sensor.keypath}')
+
+            if self._sensor.device_class is not None and self._sensor.device_class == 'Timestamp' and value is not None:
+                value = datetime.fromisoformat(value)
+
+            if self._sensor.is_notification and value is not None and isinstance(value, dict):
+                value = self._notification_config.get_notification(value.get('category'), value.get('type'))
+            elif self._sensor.is_notification and value is None:
+                value = 'No actual notification'
 
             return value
 
@@ -81,14 +89,6 @@ class Sensor(CoordinatorEntity, SensorEntity):
             value = self._get_value(self._coordinator.data)
             _LOGGER.debug(
                 f'Device: {self._device.name} ({self._device.appliance_id}) with sensor name: "{self._sensor.name}" has the following value on keypath "{self._sensor.keypath}": {value}')
-
-            if self._sensor.device_class is not None and self._sensor.device_class == 'Timestamp' and value is not None:
-                value = datetime.fromisoformat(value)
-
-            if self._sensor.is_notification and value is not None and isinstance(value, dict):
-                value = self._notification_config.get_notification(value.get('category'), value.get('notification_type'))
-            elif self._sensor.is_notification and value is None:
-                value = 'No actual notification'
 
             self._value = value
             self.async_write_ha_state()

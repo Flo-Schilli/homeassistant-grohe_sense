@@ -19,7 +19,7 @@ devices:
           unit: 'Percentage'
           category: 'Diagnostic'
         - name: 'Latest notification'
-          keypath: 'details.notification[0]'
+          keypath: 'details.notifications[0]'
           is_notification: True
     - type: GroheSenseGuard
       todos:
@@ -37,7 +37,7 @@ devices:
           keypath: 'details.data_latest.measurement.temperature_guard'
           device_class: 'Temperature'
           unit: 'Celsius'
-        - name: 'Consumption today'
+        - name: 'Water consumption'
           keypath: 'details.data_latest.daily_consumption'
           device_class: 'Water'
           state_class: 'Total Increasing'
@@ -67,7 +67,7 @@ devices:
           device_class: 'Pressure'
           unit: 'Bar'
         - name: 'Latest notification'
-          keypath: 'details.notification[0]'
+          keypath: 'details.notifications[0]'
           is_notification: True
 
         - name: 'PM: Pressure drop'
@@ -88,6 +88,7 @@ devices:
           keypath: 'pressure.items[0].start_time'
           device_class: 'Timestamp'
           enabled: false
+          min_version: '3.06'
 
         - name: 'Update available'
           keypath: 'status.update_available'
@@ -107,7 +108,7 @@ devices:
           keypath: 'notifications.notifications'
       sensors:
         - name: 'Latest notification'
-          keypath: 'details.notification[0]'
+          keypath: 'details.notifications[0]'
           is_notification: True
 
         - name: 'Cycles carbonated'
@@ -215,7 +216,7 @@ devices:
           keypath: 'notifications.notifications'
       sensors:
         - name: 'Latest notification'
-          keypath: 'details.notification[0]'
+          keypath: 'details.notifications[0]'
           is_notification: True
 
         - name: 'Cycles carbonated'
