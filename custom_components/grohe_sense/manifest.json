@@ -7,7 +7,9 @@
 	"iot_class": "cloud_polling",
 	"issue_tracker": "https://github.com/Flo-Schilli/homeassistant-grohe_sense/issues",
 	"requirements": [
-		"dataclasses-json==0.6.7"
+		"dataclasses-json==0.6.7",
+		"lxml==5.3.0",
+		"python-benedict==0.34.0"
 	],
-	"version": "v0.10.2"
+	"version": "v0.20.1-alpha"
 }

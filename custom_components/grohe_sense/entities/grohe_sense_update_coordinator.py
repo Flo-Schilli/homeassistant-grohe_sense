@@ -83,22 +83,16 @@ class GroheSenseUpdateCoordinator(DataUpdateCoordinator):
         _LOGGER.debug(f'Get last pressure measurement for appliance {self._device.appliance_id}')
 
         _LOGGER.debug('Get last pressure measurement')
-        appliance_details = await self._api.get_appliance_details(self._device.location_id, self._device.room_id,
-                                                                  self._device.appliance_id)
-
+        pressure_measurement = await self._api.get_appliance_pressure_measurement(self._device.location_id,
+                                                                                  self._device.room_id,
+                                                                                  self._device.appliance_id)
         measurement: LastPressureMeasurement | None = None
-        if appliance_details and appliance_details.last_pressure_measurement is not None:
-            measurement = LastPressureMeasurement.from_dict(appliance_details.last_pressure_measurement.to_dict())
+
+        if len(pressure_measurement) > 0:
+            measurement = pressure_measurement[0]
             _LOGGER.debug(f'PRESSURE MEASUREMENT -> Received the following pressure measurement for '
                           f'appliance {self._device.appliance_id}: {measurement}')
-            if appliance_details.last_pressure_measurement.pressure_curve is not None:
-                curve = appliance_details.last_pressure_measurement.pressure_curve
-                flow_rates = [flow.fr for flow in curve]
-                flow_rates.sort(reverse=True)
-                measurement.max_flow_rate = flow_rates[0] if len(flow_rates) > 0 else None
-        elif appliance_details is not None:
-            _LOGGER.debug(f'PRESSURE MEASUREMENT -> Did a pressure measurement for appliance'
-                          f' {self._device.appliance_id} but only received the following data: {appliance_details}')
+
         return measurement
 
 
