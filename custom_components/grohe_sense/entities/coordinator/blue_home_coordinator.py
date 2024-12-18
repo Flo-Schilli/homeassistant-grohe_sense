@@ -25,6 +25,14 @@ class BlueHomeCoordinator(DataUpdateCoordinator, CoordinatorInterface):
         self._notifications: List[Notification] = []
 
     async def _get_data(self) -> Dict[str, any]:
+        # Before each call, get the new current measurement
+        await self._api.set_appliance_command_raw(
+            self._device.location_id,
+            self._device.room_id,
+            self._device.appliance_id,
+            self._device.type,
+            {'command': {'get_current_measurement': True}})
+
         api_data = await self._api.get_appliance_details_raw(
             self._device.location_id,
             self._device.room_id,
