@@ -20,7 +20,7 @@ devices:
           category: 'Diagnostic'
         - name: 'Latest notification'
           keypath: 'details.notifications[0]'
-          is_notification: True
+          special_type: 'Notification'
     - type: GroheSenseGuard
       todos:
         - name: 'Notifications'
@@ -68,7 +68,7 @@ devices:
           unit: 'Bar'
         - name: 'Latest notification'
           keypath: 'details.notifications[0]'
-          is_notification: True
+          special_type: 'Notification'
 
         - name: 'PM: Pressure drop'
           keypath: 'pressure.items[0].drop_of_pressure'
@@ -109,7 +109,7 @@ devices:
       sensors:
         - name: 'Latest notification'
           keypath: 'details.notifications[0]'
-          is_notification: True
+          special_type: 'Notification'
 
         - name: 'Cycles carbonated'
           keypath: 'details.data_latest.measurement.open_close_cycles_carbonated'
@@ -140,8 +140,9 @@ devices:
           unit: 'Minutes'
         - name: 'Time since last withdrawal'
           keypath: 'details.data_latest.measurement.time_since_last_withdrawal'
-          device_class: 'Duration'
+          device_class: 'Timestamp'
           unit: 'Minutes'
+          special_type: 'Duration as Timestamp'
         - name: 'Water running carbonated'
           keypath: 'details.data_latest.measurement.water_running_time_carbonated'
           device_class: 'Duration'
@@ -217,7 +218,7 @@ devices:
       sensors:
         - name: 'Latest notification'
           keypath: 'details.notifications[0]'
-          is_notification: True
+          special_type: 'Notification'
 
         - name: 'Cycles carbonated'
           keypath: 'details.data_latest.measurement.open_close_cycles_carbonated'
@@ -248,8 +249,9 @@ devices:
           unit: 'Minutes'
         - name: 'Time since last withdrawal'
           keypath: 'details.data_latest.measurement.time_since_last_withdrawal'
-          device_class: 'Duration'
+          device_class: 'Timestamp'
           unit: 'Minutes'
+          special_type: 'Duration as Timestamp'
         - name: 'Water running carbonated'
           keypath: 'details.data_latest.measurement.water_running_time_carbonated'
           device_class: 'Duration'

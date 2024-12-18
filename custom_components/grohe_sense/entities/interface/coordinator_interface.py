@@ -10,3 +10,7 @@ class CoordinatorInterface:
     @abstractmethod
     async def get_initial_value(self) -> Dict[str, any]:
         raise NotImplementedError
+
+    @abstractmethod
+    def set_polling_interval(self, polling: int) -> None:
+        raise NotImplementedError

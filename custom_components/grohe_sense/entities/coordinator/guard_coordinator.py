@@ -78,3 +78,7 @@ class GuardCoordinator(DataUpdateCoordinator, CoordinatorInterface, CoordinatorV
 
     async def get_initial_value(self) -> Dict[str, any]:
         return await self._get_data()
+
+    def set_polling_interval(self, polling: int) -> None:
+        self.update_interval = timedelta(seconds=polling)
+        self.async_update_listeners()

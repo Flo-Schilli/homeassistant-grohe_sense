@@ -45,7 +45,7 @@ class SensorDto:
     state_class: Optional[str] = None
     unit: Optional[str] = None
     enabled: Optional[bool] = True
-    is_notification: Optional[bool] = False
+    special_type: Optional[str] = None
     min_version: Optional[str] = None
 
 @dataclass_json

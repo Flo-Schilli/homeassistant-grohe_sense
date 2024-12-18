@@ -43,16 +43,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     coordinators: Dict[str, CoordinatorInterface] = {}
     for device in devices:
         if device.type == GroheTypes.GROHE_SENSE:
-            sense_coordinator = SenseCoordinator(hass, DOMAIN, device, api)
+            sense_coordinator = SenseCoordinator(hass, DOMAIN, device, api, polling)
             coordinators[device.appliance_id] = sense_coordinator
         elif device.type == GroheTypes.GROHE_SENSE_GUARD:
-            guard_coordinator = GuardCoordinator(hass, DOMAIN, device, api)
+            guard_coordinator = GuardCoordinator(hass, DOMAIN, device, api, polling)
             coordinators[device.appliance_id] = guard_coordinator
         elif device.type == GroheTypes.GROHE_BLUE_HOME:
-            blue_home_coordinator = BlueHomeCoordinator(hass, DOMAIN, device, api)
+            blue_home_coordinator = BlueHomeCoordinator(hass, DOMAIN, device, api, polling)
             coordinators[device.appliance_id] = blue_home_coordinator
         elif device.type == GroheTypes.GROHE_BLUE_PROFESSIONAL:
-            blue_prof_coordinator = BlueProfCoordinator(hass, DOMAIN, device, api)
+            blue_prof_coordinator = BlueProfCoordinator(hass, DOMAIN, device, api, polling)
             coordinators[device.appliance_id] = blue_prof_coordinator
 
     # Add a generic profile coordinator so that we can use general data for the user profile as well
@@ -64,6 +64,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     await hass.config_entries.async_forward_entry_setups(entry, CONF_PLATFORM)
 
+    ####### OPTIONS - FLOW RELOAD ######################################################################################
+    async def update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
+        _LOGGER.debug("Updating Grohe Sense options")
+        for coordinator in hass.data[DOMAIN]['coordinator'].values():
+            coordinator.set_polling_interval(polling)
+            await coordinator.async_request_refresh()
+
+    entry.async_on_unload(entry.add_update_listener(update_listener))
 
     ####### SERVICES ###################################################################################################
     async def handle_dashboard_export(call: ServiceCall) -> ServiceResponse:

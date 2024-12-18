@@ -1,10 +1,14 @@
 import logging
 
 from homeassistant import config_entries
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import callback
 
 from .const import DOMAIN, CONF_PASSWORD, CONF_USERNAME
 import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
+
+from .options_flow import OptionsFlowHandler
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -31,3 +35,11 @@ class GroheSenseConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             ),
             errors={},
         )
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(
+            config_entry: ConfigEntry,
+    ) -> OptionsFlowHandler:
+        """Create the options flow."""
+        return OptionsFlowHandler()
