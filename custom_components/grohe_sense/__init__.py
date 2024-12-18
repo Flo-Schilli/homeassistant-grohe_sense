@@ -34,11 +34,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     # Login to Grohe backend
     api = OndusApi(aiohttp_client.async_get_clientsession(hass))
-    await api.login(entry.data[CONF_USERNAME], entry.data[CONF_PASSWORD])
+    await api.login(entry.data.get('username'), entry.data.get('password'))
 
     # Get all devices available
     devices: List[GroheDevice] = await GroheDevice.get_devices(api)
 
+    polling = entry.data.get('polling', 300)
     coordinators: Dict[str, CoordinatorInterface] = {}
     for device in devices:
         if device.type == GroheTypes.GROHE_SENSE:
