@@ -74,7 +74,7 @@ class Sensor(CoordinatorEntity, SensorEntity):
 
             if self._sensor.device_class is not None and self._sensor.device_class == 'Timestamp' and value is not None:
                 if self._sensor.special_type is not None and self._sensor.special_type.upper() == 'DURATION AS TIMESTAMP':
-                    value = datetime.now() - timedelta(minutes=value)
+                    value = datetime.now().astimezone() - timedelta(minutes=value)
                 else:
                     value = datetime.fromisoformat(value)
 
