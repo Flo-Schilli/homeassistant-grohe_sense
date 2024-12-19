@@ -73,15 +73,16 @@ class Sensor(CoordinatorEntity, SensorEntity):
                 _LOGGER.error(f'Device: {self._device.name} ({self._device.appliance_id}) with sensor: {self._sensor.name} has no value on keypath: {self._sensor.keypath}')
 
             if self._sensor.device_class is not None and self._sensor.device_class == 'Timestamp' and value is not None:
-                if self._sensor.special_type.upper() == 'DURATION AS TIMESTAMP':
+                if self._sensor.special_type is not None and self._sensor.special_type.upper() == 'DURATION AS TIMESTAMP':
                     value = datetime.now() - timedelta(minutes=value)
                 else:
                     value = datetime.fromisoformat(value)
 
-            if self._sensor.special_type.upper() == 'NOTIFICATION' and value is not None and isinstance(value, dict):
-                value = self._notification_config.get_notification(value.get('category'), value.get('type'))
-            elif self._sensor.special_type.upper() == 'NOTIFICATION' and value is None:
-                value = 'No actual notification'
+            if self._sensor.special_type is not None:
+                if self._sensor.special_type.upper() == 'NOTIFICATION' and value is not None and isinstance(value, dict):
+                    value = self._notification_config.get_notification(value.get('category'), value.get('type'))
+                elif self._sensor.special_type.upper() == 'NOTIFICATION' and value is None:
+                    value = 'No actual notification'
 
             return value
 
