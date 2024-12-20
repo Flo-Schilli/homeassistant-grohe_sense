@@ -24,6 +24,10 @@ class GroheDevice:
         return self._room_id
 
     @property
+    def room_name(self) -> str:
+        return self._room_name
+
+    @property
     def appliance_id(self) -> str:
         return self.appliance.id
 

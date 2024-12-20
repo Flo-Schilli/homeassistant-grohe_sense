@@ -39,7 +39,8 @@ class Todo(CoordinatorEntity, TodoListEntity):
                           name=self._device.name,
                           manufacturer='Grohe',
                           model=self._device.device_name,
-                          sw_version=self._device.sw_version)
+                          sw_version=self._device.sw_version,
+                          suggested_area=self._device.room_name)
 
     @property
     def unique_id(self):
