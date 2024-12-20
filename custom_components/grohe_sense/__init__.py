@@ -304,7 +304,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.services.async_register(
         DOMAIN,
         'tap_water',
-        handle_tap_water(),
+        handle_tap_water,
         schema=voluptuous.Schema({
             voluptuous.Required('device_name'): str,
             voluptuous.Required('water_type'): str,
