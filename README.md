@@ -7,6 +7,12 @@ Grohe Sense and Grohe Blue integration for Home Assistant
 This is an integration to get Grohe Sense (small leak sensor) and Grohe Sense Guard (main water pipe sensor/breaker) sensors into Home Assistant.
 Additionally, also the Grohe Blue Home/Professional (water filter with carbonation) are now integrated into Home Assistant.
 
+## Disclaimer
+I am not affiliated with Grohe or the Grohe app in any way. 
+If Grohe decides to change the API in any way, this could break the integration. 
+Even though I'm testing the integration with my own devices, I am not liable for any potential issues, malfunctions, or damages arising from using this integration. 
+Use at your own risk!
+
 ## Devices
 Below is a list of supported devices.
 
@@ -14,6 +20,7 @@ Below is a list of supported devices.
 When you install this, you get the following sensors for Sense:
  - **Temperature**
  - **Humidity**
+ - **Latest notification**
 
 And the following diagnostic sensor:
  - **Battery**
@@ -32,6 +39,7 @@ When you install this, you get the following sensors for each Sense Guard:
  - **Latest consumption**
  - **Latest max flow rate**
  - **Temperature**
+ - **Latest notification**
 
 And the following diagnostic sensors:
  - **Online**
@@ -64,6 +72,7 @@ When you install this, you get the following sensors for each Grohe Blue Home an
 - **Remaining Filter**
 - **Remaining CO2 total**
 - **Remaining Filter total**
+- **Latest notification**
 
 And the following diagnostic sensors:
 - **Count cleaning**
@@ -76,21 +85,24 @@ And the following diagnostic sensors:
 - **Online**
 
 ### For all devices
-The notifications sensor is a string of all your unread notifications (newline-separated).
-I recommend installing the Grohe Sense app, where there is a UI to read them (so they disappear from this sensor).
-On first start, you may find you have a lot of old unread notifications. 
-The notifications I know how to parse are listed in `ondus_notifications` in `ondus_notifications.py`. 
-If the API returns something unknown, it will be shown as `Unknown: Category %d, Type %d`. 
-If you see that, please consider submitting a bug report with the `category` and `type` fields from the JSON + some description of what it means.
+All notifications from the devices are now listed in a todo list for each device
+![Todo list for notifications](./assets/todo.png)
+
+When setting them to be completed, they also set the appropriate notification in the events of the Grohe app as seen.
+
+**HINT** Right now you need to refresh to see that the newly completed ones are also in the completed list of HA. I'm aware of this problem and will look into it.
+
+If the API returns an unknown combination, it will be shown as `Unknown: Category %d, Type %d`. 
+If you see that, please consider submitting a bug report with the following two information from the todo list `Notification category: %d, Notification subcategory: %d` description and additional some description of what it means.
 This can be found by finding the corresponding notification in the Grohe Sense app.
 
 ## Automation ideas
 - Turning water off when you're away (and dishwasher, washer, et.c. are not running) and turning it back on when home again.
 - Turning water off when non-Grohe sensors detect water.
 - Passing along notifications from Grohe sense to Slack/Matrix/Amazon (note that there is a polling delay, plus unknown delay between device and Grohe's cloud)
-- Send Slack notification when your alarm is armed away and flowrate is >0 (controlling for the high latency, plus dishwashers, ice makers, et.c.).
+- Send notification when your alarm is armed away and flowrate is >0 (controlling for the high latency, plus dishwashers, ice makers, et.c.).
 
-Graphing water consumption is also nice. Note that the data returned by Grohe's servers is extremely detailed, so for nicer graphs, you may want to talk to the servers directly and access the json data, rather than go via this integration.
+Graphing water consumption is also nice. Note: The data returned by Grohe's servers is extremely detailed.
 
 ## Energy dashboard
 If a Sense Guard is installed, the water consumption sensor can be used to integrate into the energy dashboard.
@@ -105,11 +117,21 @@ If a Sense Guard is installed, the water consumption sensor can be used to integ
 - Choose Integrations under HACS. Click the '+' button on the bottom of the page, search for 
   "Grohe Sense", choose it, and click install in HACS.
 
+At the moment it is not directly listed in HACS (PR is open) and therefore you have to take additional steps:
+1. Open the HACS panel in your Home Assistant frontend.
+2. Navigate to the "Integrations" tab.
+3. Click the three dots in the top-right corner and select "Custom Repositories."
+4. Add a new custom repository:
+    - URL: https://github.com/Flo-Schilli/homeassistant-grohe_sense
+    - Category: Integration
+7. Click "Save" and then click "Install" on the Grohe Sense integration.
+8. Then, restart your HomeAssistant Instance and go to Settings -> Devices & Services -> Add Integration and search for "Grohe Sense".
+9. Enter your Grohe credentials and click on "Submit".
+
 #### Option 2: Manual
 - Clone this repository or download the source code as a zip file and add/merge the `custom_components/` folder with its contents in your configuration directory.
 
-
-### Step 2: Get your Grohe authentication token
+### Step 2: Login
 
 #### Via config flow
 The component supports the config flow of home assistant. 
@@ -143,5 +165,6 @@ If anyone has any good ideas/pointers, that'd be appreciated.
 Thanks to:
  - [gkreitz](https://github.com/gkreitz/homeassistant-grohe_sense) for the implementation and to [weissm](https://github.com/weissm/homeassistant-grohe_sense) from whom I forked the repository.
  - [rama1981](https://github.com/rama1981) for reaching out and going through the trial and error for the Grohe Blue Professional.
+ - [daxyorg](https://github.com/daxyorg) for going through the trial and error of the refactored version and testing with Grohe Blue Home.
  - [windkh](https://github.com/windkh/node-red-contrib-grohe-sense) from whom I've token a lot of the notification types available.
  - [FlorianSW](https://github.com/FlorianSW/grohe-ondus-api-java) for the initial protocol understanding
