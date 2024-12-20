@@ -88,7 +88,7 @@ class GroheDevice:
                     try:
                         device: GroheDevice = GroheDevice(location.id, room.id, appliance)
                         if not device.is_valid_device_type():
-                            app_details = await ondus_api.get_appliance_details_type_insensitive(
+                            app_details = await ondus_api.get_appliance_details_raw(
                                 location.id, room.id, appliance.id)
 
                             _LOGGER.warning(f'Could not parse the following appliance as a GroheDevice. Please file '

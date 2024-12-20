@@ -17,10 +17,6 @@ class GroheTypes(Enum):
     GROHE_BLUE_PROFESSIONAL = 105
 
 
-class OndusCommands(Enum):
-    OPEN_VALVE = 'valve_open'
-
-
 class PressureMeasurementState(Enum):
     SUCCESS = 'SUCCESS'
     START = 'START'
