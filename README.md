@@ -108,6 +108,19 @@ Graphing water consumption is also nice. Note: The data returned by Grohe's serv
 If a Sense Guard is installed, the water consumption sensor can be used to integrate into the energy dashboard.
 ![Water consumption in energy dashboard](./assets/waterconsumption.png)
 
+## Actions
+This integration also exposes a bunch of actions which can be used also in automations (or for debugging purposes).
+The following Actions are available:
+ - Grohe Sense: Get Dashboard Data
+ - Grohe Sense: Get Appliance data
+ - Grohe Sense: Get Appliance details
+ - Grohe Sense: Get Appliance status
+ - Grohe Sense: Get Appliance pressure measurements
+ - Grohe Sense: Get Appliance notifications
+ - Grohe Sense: Get Profile notifications
+ - Grohe Sense: Get Appliance command
+ - Grohe Sense: Set Appliance command
+
 ## Installation
 
 ### Step 1: Download the files
