@@ -1,6 +1,6 @@
 {
   "config": {
-    "flow_title": "Setup Grohe Sense",
+    "flow_title": "Setup Grohe Sense and Blue",
     "step": {
       "user": {
         "title": "Login to Grohe",

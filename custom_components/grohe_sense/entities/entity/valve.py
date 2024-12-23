@@ -34,6 +34,7 @@ class Valve(ValveEntity):
         self._attr_icon = 'mdi:water'
 
         self._attr_name = f'{self._device.name} {self._valve.name}'
+        self._attr_has_entity_name = True
 
         self._attr_supported_features = ValveEntityFeature.OPEN | ValveEntityFeature.CLOSE
 

@@ -1,6 +1,6 @@
 {
 	"domain": "grohe_sense",
-	"name": "Grohe Sense",
+	"name": "Grohe Sense and Blue",
 	"codeowners": ["@Flo-Schilli"],
 	"config_flow": true,
 	"documentation": "https://github.com/Flo-Schilli/homeassistant-grohe_sense",
