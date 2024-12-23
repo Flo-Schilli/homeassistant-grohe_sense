@@ -22,3 +22,8 @@ class PressureMeasurementState(Enum):
     START = 'START'
     START_FAILED = 'START_FAILED'
     STOP = 'STOP'
+
+class GroheTapType(Enum):
+    STILL = 1
+    MEDIUM = 2
+    CARBONATED = 3

@@ -17,15 +17,24 @@ from custom_components.grohe_sense.entities.coordinator.guard_coordinator import
 from custom_components.grohe_sense.entities.coordinator.profile_coordinator import ProfileCoordinator
 from custom_components.grohe_sense.entities.coordinator.sense_coordinator import SenseCoordinator
 from custom_components.grohe_sense.entities.interface.coordinator_interface import CoordinatorInterface
-from custom_components.grohe_sense.enum.ondus_types import GroheTypes, OndusGroupByTypes
+from custom_components.grohe_sense.enum.ondus_types import GroheTypes, OndusGroupByTypes, GroheTapType
 
 _LOGGER = logging.getLogger(__name__)
 
 def find_device_by_name(devices: List[GroheDevice], name: str) -> GroheDevice:
     return next((device for device in devices if device.name == name), None)
 
+async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
+    _LOGGER.debug("Unloading Grohe Entry")
+    unload_ok = await hass.config_entries.async_unload_platforms(entry, CONF_PLATFORM)
+
+    if unload_ok:
+        hass.data[DOMAIN].pop(entry.entry_id)
+
+    return unload_ok
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    _LOGGER.debug("Loading Grohe Sense")
+    _LOGGER.debug("Loading Grohe Entry")
 
     config_loader = ConfigLoader(os.path.join(os.path.dirname(__file__), 'config'))
 
@@ -33,7 +42,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     config = await hass.async_add_executor_job(config_loader.load_config)
 
     # Login to Grohe backend
-    api = OndusApi(aiohttp_client.async_get_clientsession(hass))
+    api = OndusApi(aiohttp_client.async_create_clientsession(hass))
     await api.login(entry.data.get('username'), entry.data.get('password'))
 
     # Get all devices available
@@ -60,7 +69,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     coordinators[api.get_user_claim()] = profile_coordinator
 
     # Store devices and login information into hass object
-    hass.data[DOMAIN] = {'session': api, 'devices': devices, 'coordinator': coordinators, 'notifications': notifications, 'config': config}
+    hass.data[DOMAIN] = {}
+    hass.data[DOMAIN][entry.entry_id] = {'session': api, 'devices': devices, 'coordinator': coordinators, 'notifications': notifications, 'config': config}
 
     await hass.config_entries.async_forward_entry_setups(entry, CONF_PLATFORM)
 
@@ -133,6 +143,27 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 return data
         else:
             return {}
+
+    async def handle_tap_water(call: ServiceCall) -> ServiceResponse:
+        _LOGGER.debug('Tap water for params: %s', call.data)
+        device = find_device_by_name(devices, call.data['device_name'])
+        water_type = call.data.get('water_type')
+        water_amount = call.data.get('amount')
+
+
+        if device and (device.type == GroheTypes.GROHE_BLUE_HOME or device.type == GroheTypes.GROHE_BLUE_PROFESSIONAL):
+            try:
+                mapped_water_type = GroheTapType[water_type.upper()]
+                data_to_send = {'command': {'tap_type': mapped_water_type.value, 'tap_amount': water_amount}}
+                data = await api.set_appliance_command_raw(device.location_id, device.room_id, device.appliance_id, device.type, data_to_send)
+                if data is None:
+                    return {}
+                else:
+                    return data
+            except KeyError as e:
+                return {'error': f'The following error happened: {e}'}
+        else:
+            return {'error': 'Device is not a Grohe Blue device'}
 
     async def handle_get_appliance_status(call: ServiceCall) -> ServiceResponse:
         _LOGGER.debug('Get status for params: %s', call.data)
@@ -277,6 +308,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         handle_get_profile_notifications,
         schema=voluptuous.Schema({
             voluptuous.Optional('limit'): int,
+        }),
+        supports_response=SupportsResponse.ONLY)
+
+    hass.services.async_register(
+        DOMAIN,
+        'tap_water',
+        handle_tap_water,
+        schema=voluptuous.Schema({
+            voluptuous.Required('device_name'): str,
+            voluptuous.Required('water_type'): str,
+            voluptuous.Required('amount'): int,
         }),
         supports_response=SupportsResponse.ONLY)
 

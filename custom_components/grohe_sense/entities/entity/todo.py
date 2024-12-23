@@ -30,6 +30,7 @@ class Todo(CoordinatorEntity, TodoListEntity):
 
         # Needed for TodoEntity
         self._attr_name = f'{self._device.name} {self._todo.name}'
+        self._attr_has_entity_name = True
         self._attr_todo_items = []
         self._attr_supported_features = TodoListEntityFeature.UPDATE_TODO_ITEM | TodoListEntityFeature.SET_DESCRIPTION_ON_ITEM
 
@@ -39,7 +40,8 @@ class Todo(CoordinatorEntity, TodoListEntity):
                           name=self._device.name,
                           manufacturer='Grohe',
                           model=self._device.device_name,
-                          sw_version=self._device.sw_version)
+                          sw_version=self._device.sw_version,
+                          suggested_area=self._device.room_name)
 
     @property
     def unique_id(self):

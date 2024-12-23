@@ -34,6 +34,7 @@ class Valve(ValveEntity):
         self._attr_icon = 'mdi:water'
 
         self._attr_name = f'{self._device.name} {self._valve.name}'
+        self._attr_has_entity_name = True
 
         self._attr_supported_features = ValveEntityFeature.OPEN | ValveEntityFeature.CLOSE
 
@@ -50,7 +51,8 @@ class Valve(ValveEntity):
                           name=self._device.name,
                           manufacturer='Grohe',
                           model=self._device.device_name,
-                          sw_version=self._device.sw_version)
+                          sw_version=self._device.sw_version,
+                          suggested_area=self._device.room_name)
 
     @property
     def reports_position(self) -> bool:

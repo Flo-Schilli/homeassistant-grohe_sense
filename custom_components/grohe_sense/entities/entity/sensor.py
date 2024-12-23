@@ -30,6 +30,7 @@ class Sensor(CoordinatorEntity, SensorEntity):
 
         # Needed for Sensor Entity
         self._attr_name = f'{self._device.name} {self._sensor.name}'
+        self._attr_has_entity_name = True
 
         self._attr_entity_registry_enabled_default = self._sensor.enabled
 
@@ -51,7 +52,8 @@ class Sensor(CoordinatorEntity, SensorEntity):
                           name=self._device.name,
                           manufacturer='Grohe',
                           model=self._device.device_name,
-                          sw_version=self._device.sw_version)
+                          sw_version=self._device.sw_version,
+                          suggested_area=self._device.room_name)
 
     @property
     def unique_id(self):

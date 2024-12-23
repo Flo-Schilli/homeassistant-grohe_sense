@@ -43,23 +43,23 @@ class EntityHelper:
 
 
     async def add_sensor_entities(self, coordinator: CoordinatorInterface, device: GroheDevice,
-                                  notification_config: NotificationsDto, async_add_entities):
+                                  notification_config: NotificationsDto) -> List[Sensor]:
 
         config_name = self._get_config_name_by_device_type(device)
 
+        entities: List = []
         if config_name:
-            entities: List = []
             initial_value = await coordinator.get_initial_value()
             if self._config.get_device_config(config_name) is not None:
                 for sensor in self._config.get_device_config(config_name).sensors:
                     if self._is_valid_version(device, sensor):
                         _LOGGER.debug(f'Adding sensor {sensor.name} for device {device.name}')
                         entities.append(Sensor(self._domain, coordinator, device, sensor, notification_config, initial_value))
-            if entities:
-                async_add_entities(entities, update_before_add=True)
+        return entities
+
 
     async def add_todo_entities(self, coordinator: CoordinatorInterface, device: GroheDevice,
-                                notification_config: NotificationsDto, async_add_entities):
+                                notification_config: NotificationsDto) -> List[Todo]:
 
         config_name = self._get_config_name_by_device_type(device)
 
@@ -69,22 +69,22 @@ class EntityHelper:
             for todo in self._config.get_device_config(config_name).todos:
                 _LOGGER.debug(f'Adding todo {todo.name} for device {device.name}')
                 entities.append(Todo(self._domain, coordinator, device, todo, notification_config))
-        if entities:
-            async_add_entities(entities, update_before_add=True)
+
+        return entities
 
 
-    async def add_valve_entities(self, coordinator: CoordinatorInterface, device: GroheDevice, async_add_entities):
+    async def add_valve_entities(self, coordinator: CoordinatorInterface, device: GroheDevice) -> List[Valve]:
 
         config_name = self._get_config_name_by_device_type(device)
 
+        entities: List[Valve] = []
         if config_name:
-            entities: List = []
-            initial_value = await coordinator.get_initial_value()
             if (self._config.get_device_config(config_name) is not None
                     and self._config.get_device_config(config_name).valves is not None):
                 for valve in self._config.get_device_config(config_name).valves:
                     _LOGGER.debug(f'Adding valve {valve.name} for device {device.name}')
                     entities.append(Valve(self._domain, coordinator, device, valve))
-            if entities:
-                async_add_entities(entities, update_before_add=True)
+
+        return entities
+
 

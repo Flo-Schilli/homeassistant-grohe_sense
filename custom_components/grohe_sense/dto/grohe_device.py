@@ -9,9 +9,10 @@ _LOGGER = logging.getLogger(__name__)
 
 
 class GroheDevice:
-    def __init__(self, location_id: int, room_id: int, appliance: Appliance):
+    def __init__(self, location_id: int, room_id: int, room_name: str, appliance: Appliance):
         self._location_id = location_id
         self._room_id = room_id
+        self._room_name = room_name
         self.appliance = appliance
 
     @property
@@ -21,6 +22,10 @@ class GroheDevice:
     @property
     def room_id(self):
         return self._room_id
+
+    @property
+    def room_name(self) -> str:
+        return self._room_name
 
     @property
     def appliance_id(self) -> str:
@@ -86,7 +91,7 @@ class GroheDevice:
                     )
 
                     try:
-                        device: GroheDevice = GroheDevice(location.id, room.id, appliance)
+                        device: GroheDevice = GroheDevice(location.id, room.id, room.name, appliance)
                         if not device.is_valid_device_type():
                             app_details = await ondus_api.get_appliance_details_raw(
                                 location.id, room.id, appliance.id)

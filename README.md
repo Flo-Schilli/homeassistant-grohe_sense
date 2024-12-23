@@ -120,6 +120,7 @@ The following Actions are available:
  - Grohe Sense: Get Profile notifications
  - Grohe Sense: Get Appliance command
  - Grohe Sense: Set Appliance command
+ - Grohe Sense: Tap Water
 
 ## Installation
 
