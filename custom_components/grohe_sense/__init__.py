@@ -24,8 +24,17 @@ _LOGGER = logging.getLogger(__name__)
 def find_device_by_name(devices: List[GroheDevice], name: str) -> GroheDevice:
     return next((device for device in devices if device.name == name), None)
 
+async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
+    _LOGGER.debug("Unloading Grohe Entry")
+    unload_ok = await hass.config_entries.async_unload_platforms(entry, CONF_PLATFORM)
+
+    if unload_ok:
+        hass.data[DOMAIN].pop(entry.entry_id)
+
+    return unload_ok
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    _LOGGER.debug("Loading Grohe Sense")
+    _LOGGER.debug("Loading Grohe Entry")
 
     config_loader = ConfigLoader(os.path.join(os.path.dirname(__file__), 'config'))
 
@@ -33,7 +42,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     config = await hass.async_add_executor_job(config_loader.load_config)
 
     # Login to Grohe backend
-    api = OndusApi(aiohttp_client.async_get_clientsession(hass))
+    api = OndusApi(aiohttp_client.async_create_clientsession(hass))
     await api.login(entry.data.get('username'), entry.data.get('password'))
 
     # Get all devices available
@@ -60,7 +69,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     coordinators[api.get_user_claim()] = profile_coordinator
 
     # Store devices and login information into hass object
-    hass.data[DOMAIN] = {'session': api, 'devices': devices, 'coordinator': coordinators, 'notifications': notifications, 'config': config}
+    hass.data[DOMAIN] = {}
+    hass.data[DOMAIN][entry.entry_id] = {'session': api, 'devices': devices, 'coordinator': coordinators, 'notifications': notifications, 'config': config}
 
     await hass.config_entries.async_forward_entry_setups(entry, CONF_PLATFORM)
 
