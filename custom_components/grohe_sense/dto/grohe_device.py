@@ -37,7 +37,12 @@ class GroheDevice:
 
     @property
     def stripped_sw_version(self) -> tuple[int, ...]:
-        return tuple(map(int, self.appliance.version.split('.')[:2]))
+        try:
+            version = tuple(map(int, self.appliance.version.split('.')[:2]))
+        except ValueError:
+            _LOGGER.warning(f'SW-Version for {self.appliance.name} cannot be split into two numbers. Value is: "{self.appliance.version}"')
+            version = (0, 0)
+        return version
 
     @property
     def name(self) -> str:
