@@ -234,6 +234,23 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         else:
             return data
 
+    async def handle_set_snooze(call: ServiceCall) -> ServiceResponse:
+        _LOGGER.debug('Set snooze for params: %s', call.data)
+        device = find_device_by_name(devices, call.data['device_name'])
+        duration = call.data.get('duration')
+
+        if device and (device.type == GroheTypes.GROHE_SENSE_GUARD):
+            try:
+                data = await api.set_snooze(device.location_id, device.room_id, device.appliance_id, duration)
+                if data is None:
+                    return {}
+                else:
+                    return data
+            except KeyError as e:
+                return {'error': f'The following error happened: {e}'}
+        else:
+            return {'error': 'Device is not a Grohe Sense Guard device'}
+
 
 
     hass.services.async_register(DOMAIN, 'get_dashboard', handle_dashboard_export, schema=None, supports_response=SupportsResponse.ONLY)
@@ -319,6 +336,16 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             voluptuous.Required('device_name'): str,
             voluptuous.Required('water_type'): str,
             voluptuous.Required('amount'): int,
+        }),
+        supports_response=SupportsResponse.ONLY)
+
+    hass.services.async_register(
+        DOMAIN,
+        'set_snooze',
+        handle_set_snooze,
+        schema=voluptuous.Schema({
+            voluptuous.Required('device_name'): str,
+            voluptuous.Optional('duration'): int,
         }),
         supports_response=SupportsResponse.ONLY)
 

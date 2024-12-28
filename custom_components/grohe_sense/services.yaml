@@ -141,3 +141,23 @@ tap_water:
           min: 10
           max: 1500
           step: 10
+
+set_snooze:
+  name: Set snooze for Sense Guard
+  description: Set the Sense Guard to snooze for the specified time (in minutes) so that a bigger amount of water can be withdrawn and the device doesn't close the valve
+  fields:
+    device_name:
+      name: Device name
+      description: The name of the device from which you want to tap water
+      required: true
+      selector:
+        text:
+    duration:
+      name: Duration
+      description: The duration the device snoozes [in minutes]
+      required: true
+      selector:
+        number:
+          min: 1
+          max: 120
+          step: 1

@@ -257,6 +257,31 @@ class OndusApi:
             return await response.json()
         elif response.status == 200:
             return None
+        elif response.status == 202:
+            return None
+        else:
+            _LOGGER.warning(f'URL {url} returned status code {response.status} for PUT request')
+
+    async def __delete(self, url: str) -> Dict[str, Any] | None:
+        """
+        Send a DELETE request to the specified URL with the given data.
+
+        :param url: The URL to send the request to.
+        :type url: str
+        :return: A dictionary representing the response JSON.
+        :rtype: Dict[str, Any]
+        """
+        await self.__update_invalid_token()
+        response = await self._session.put(url=url, headers={
+            'Authorization': f'Bearer {self.__tokens.access_token}'
+        })
+
+        if response.status == 201:
+            return await response.json()
+        elif response.status == 200:
+            return None
+        elif response.status == 202:
+            return None
         else:
             _LOGGER.warning(f'URL {url} returned status code {response.status} for PUT request')
 
@@ -509,6 +534,17 @@ class OndusApi:
         data = await self.__get(url)
         return data
 
+    async def set_snooze(self, location_id: string, room_id: string,
+                            appliance_id: string, duration_in_min: int) -> Dict[str, any]:
+        url = f'{self.__api_url}/locations/{location_id}/rooms/{room_id}/appliances/{appliance_id}/snooze'
+        data = await self.__put(url, {'snooze_duration': duration_in_min})
+        return data
+
+    async def disable_snooze(self, location_id: string, room_id: string,
+                            appliance_id: string, duration_in_min: int) -> None:
+        url = f'{self.__api_url}/locations/{location_id}/rooms/{room_id}/appliances/{appliance_id}/snooze'
+        data = await self.__delete(url)
+        return data
 
     async def get_profile_notifications_raw(self, page_size: int = 50) -> Dict[str, any]:
         url = f'{self.__api_url}/profile/notifications?pageSize={page_size}'

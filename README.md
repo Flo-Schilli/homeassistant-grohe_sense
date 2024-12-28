@@ -111,16 +111,17 @@ If a Sense Guard is installed, the water consumption sensor can be used to integ
 ## Actions
 This integration also exposes a bunch of actions which can be used also in automations (or for debugging purposes).
 The following Actions are available:
- - Grohe Sense: Get Dashboard Data
- - Grohe Sense: Get Appliance data
- - Grohe Sense: Get Appliance details
- - Grohe Sense: Get Appliance status
- - Grohe Sense: Get Appliance pressure measurements
- - Grohe Sense: Get Appliance notifications
- - Grohe Sense: Get Profile notifications
- - Grohe Sense: Get Appliance command
- - Grohe Sense: Set Appliance command
- - Grohe Sense: Tap Water
+ - Grohe Sense and Blue: Get Dashboard Data
+ - Grohe Sense and Blue: Get Appliance data
+ - Grohe Sense and Blue: Get Appliance details
+ - Grohe Sense and Blue: Get Appliance status
+ - Grohe Sense and Blue: Get Appliance pressure measurements
+ - Grohe Sense and Blue: Get Appliance notifications
+ - Grohe Sense and Blue: Get Profile notifications
+ - Grohe Sense and Blue: Get Appliance command
+ - Grohe Sense and Blue: Set Appliance command
+ - Grohe Sense and Blue: Set Snooze
+ - Grohe Sense and Blue: Tap Water
 
 ## Installation
 
