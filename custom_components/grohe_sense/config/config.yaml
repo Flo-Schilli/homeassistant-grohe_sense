@@ -90,6 +90,14 @@ devices:
           enabled: false
           min_version: '3.06'
 
+        - name: 'Snoozed: Until'
+          keypath: 'details.snoozed_until'
+          device_class: 'Timestamp'
+          enabled: false
+        - name: 'Snoozed: Status'
+          keypath: 'details.snooze_status'
+          enabled: false
+
         - name: 'Update available'
           keypath: 'status.update_available'
           category: 'Diagnostic'
