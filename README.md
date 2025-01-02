@@ -7,6 +7,9 @@ Grohe Sense and Grohe Blue integration for Home Assistant
 This is an integration to get Grohe Sense (small leak sensor) and Grohe Sense Guard (main water pipe sensor/breaker) sensors into Home Assistant.
 Additionally, also the Grohe Blue Home/Professional (water filter with carbonation) are now integrated into Home Assistant.
 
+## :bangbang: This integration will soon be archived :bangbang: 
+The successor of this integration can be found [here](https://github.com/Flo-Schilli/ha-grohe_smarthome).
+
 ## Disclaimer
 I am not affiliated with Grohe or the Grohe app in any way. 
 If Grohe decides to change the API in any way, this could break the integration. 
