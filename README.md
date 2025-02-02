@@ -4,6 +4,8 @@
 
 
 ## :bangbang: This integration will be archived :bangbang: 
+New repository: [here](https://github.com/Flo-Schilli/ha-grohe_smarthome)
+
 Together with [@koproductions-code](https://github.com/koproductions-code) I developed an integration implementing all Grohe Smarthome devices, which has more features, cosmetic optimizations and is more stable.
 
 Going forward, this integration won't recieve any updates and may break in the future. I suggest switching to the new integration to avoid any future problems. It can be found [here](https://github.com/Flo-Schilli/ha-grohe_smarthome). If you install the new integration, make sure to remove this one from your Home Assistant setup to avoid potential conflicts.
